@@ -7,4 +7,4 @@ spec:
   endpoints:
     - dnsName: "external.${SECRET_DOMAIN}"
       recordType: CNAME
-      targets: ["c32fa9cf-3646-47b5-9080-ca655a0aa119.cfargotunnel.com"]
+      targets: ["9712718e-01a5-4548-99a2-ac1d75b42791.cfargotunnel.com"]
