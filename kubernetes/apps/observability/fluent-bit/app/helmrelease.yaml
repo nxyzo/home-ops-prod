@@ -33,6 +33,14 @@ spec:
           skip_empty_lines on
           skip_long_lines on
 
+        [INPUT]
+            Name          tail
+            Path          /var/run/cilium/hubble/events.log
+            Tag           hubble.*
+            Parser        json
+            Refresh_Interval 5
+            Rotate_Wait   30
+
       filters: |-
         [FILTER]
           name kubernetes
@@ -85,6 +93,18 @@ spec:
           json_date_format iso8601
           compress gzip
           log_response_payload false
+
+        [OUTPUT]
+          name http
+          match hubble.*
+          host victoria-logs-server.observability.svc.cluster.local
+          port 9428
+          uri /insert/jsonline?_stream_fields=stream,source.namespace,source.pod_name,destination.namespace,destination.pod_name,verdict,drop_reason_desc&_msg_field=Summary&_time_field=time
+          format json_lines
+          json_date_format iso8601
+          compress gzip
+          log_response_payload false
+
     dashboards:
       enabled: true
     serviceMonitor:
