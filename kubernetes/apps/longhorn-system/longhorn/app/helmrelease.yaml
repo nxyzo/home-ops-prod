@@ -41,7 +41,7 @@ spec:
       replicaAutoBalance: best-effort
       storageMinimalAvailablePercentage: "10"
       storageReservedPercentageForDefaultDisk: "20"
-      v2DataEngine: true
+      #v2DataEngine: true
     defaultBackupStore:
       backupTarget: s3://home-ops-prod-longhorn-backup@eu-central-003/
       backupTargetCredentialSecret: longhorn-s3-secret
