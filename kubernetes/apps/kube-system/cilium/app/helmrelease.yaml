@@ -47,24 +47,25 @@ spec:
           - icmp
           - "httpV2:exemplars=true;labelsContext=source_ip,source_namespace,source_workload,destination_ip,destination_namespace,destination_workload,traffic_direction"
           - "policy:sourceContext=app|workload-name|pod|reserved-identity;destinationContext=app|workload-name|pod|dns|reserved-identity;labelsContext=source_namespace,destination_namespace"
-      static:
-        enabled: true
-        filePath: /var/run/cilium/hubble/events.log
-        # Maximum file size before rotation (in MB)
-        fileMaxSizeMb: 10
-        # Maximum number of backup files to keep
-        fileMaxBackups: 5
-        # Field mask to control which fields are exported
-        fieldMask:
-          - time
-          - source.namespace
-          - source.pod_name
-          - destination.namespace
-          - destination.pod_name
-          - verdict
-          - drop_reason_desc
-          - l4
-          - Type
+      export:
+        static:
+          enabled: true
+          filePath: /var/run/cilium/hubble/events.log
+          # Maximum file size before rotation (in MB)
+          fileMaxSizeMb: 10
+          # Maximum number of backup files to keep
+          fileMaxBackups: 5
+          # Field mask to control which fields are exported
+          fieldMask:
+            - time
+            - source.namespace
+            - source.pod_name
+            - destination.namespace
+            - destination.pod_name
+            - verdict
+            - drop_reason_desc
+            - l4
+            - Type
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.42.0.0/16"
