@@ -34,12 +34,17 @@ spec:
           skip_long_lines on
 
         [INPUT]
-            Name          tail
-            Path          /var/run/cilium/hubble/events.log
-            Tag           hubble.*
-            Parser        json
-            Refresh_Interval 5
-            Rotate_Wait   30
+          name tail
+          alias hubble
+          path /var/run/cilium/hubble/events.log
+          parser json
+          tag hubble.*
+          db /var/log/fluent-bit-hubble.db
+          refresh_interval 5
+          rotate_wait 30
+          read_from_head false
+          skip_empty_lines on
+          skip_long_lines on
 
       filters: |-
         [FILTER]
@@ -74,6 +79,11 @@ spec:
           rename k_labels_app app
           rename k_labels_k8s-app app
 
+        [FILTER]
+          name modify
+          match hubble.*
+          add stream hubble
+
       customParsers: |-
         [PARSER]
           name containerd
@@ -105,11 +115,25 @@ spec:
           compress gzip
           log_response_payload false
 
+    extraVolumes:
+      - name: cilium-hubble
+        hostPath:
+          path: /var/run/cilium/hubble
+          type: DirectoryOrCreate
+
+    extraVolumeMounts:
+      - name: cilium-hubble
+        mountPath: /var/run/cilium/hubble
+        readOnly: true
+
     dashboards:
       enabled: true
+
     serviceMonitor:
       enabled: true
+
     logLevel: warn
+
     tolerations:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
