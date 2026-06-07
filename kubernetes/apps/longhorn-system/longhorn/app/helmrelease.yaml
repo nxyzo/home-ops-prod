@@ -54,7 +54,7 @@ spec:
       enabled: false
     httproute:
       enabled: true
-      hostname: ["longhorn.${SECRET_DOMAIN}"]
+      hostname: longhorn.${SECRET_DOMAIN}
       parentRef:
         name: envoy-internal
         namespace: network
