@@ -52,10 +52,10 @@ spec:
         enabled: true
     networkPolicies:
       enabled: false
-    httproute:
-      enabled: true
-      hostname: longhorn.${SECRET_DOMAIN}
-      parentRef:
-        name: envoy-internal
-        namespace: network
-        sectionName: https
+    # httproute:
+    #   enabled: true
+    #   hostname: longhorn.${SECRET_DOMAIN}
+    #   parentRef:
+    #     name: envoy-internal
+    #     namespace: network
+    #     sectionName: https
