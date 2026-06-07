@@ -78,6 +78,7 @@ spec:
           name modify
           match hubble.*
           add stream hubble
+          copy summary _msg
 
       customParsers: |-
         [PARSER]
