@@ -1,0 +1,101 @@
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snapshot-short-12h
+  namespace: longhorn-system
+spec:
+  cron: "0 */12 * * *"
+  task: "snapshot"
+  groups:
+    - snapshot-short
+  retain: 4
+  concurrency: 1
+  labels:
+    backup-tier: snapshot-short
+    backup-type: local-snapshot
+
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: app-backup-daily
+  namespace: longhorn-system
+spec:
+  cron: "0 2 * * *"
+  task: "backup"
+  groups:
+    - app-daily
+  retain: 7
+  concurrency: 2
+  labels:
+    backup-tier: app-daily
+    backup-type: volume-backup
+
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: critical-backup-6h
+  namespace: longhorn-system
+spec:
+  cron: "0 */6 * * *"
+  task: "backup"
+  groups:
+    - critical
+  retain: 14
+  concurrency: 2
+  labels:
+    backup-tier: critical
+    backup-type: volume-backup
+
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: critical-snapshot-6h
+  namespace: longhorn-system
+spec:
+  cron: "30 */6 * * *"
+  task: "snapshot"
+  groups:
+    - critical
+  retain: 4
+  concurrency: 1
+  labels:
+    backup-tier: critical
+    backup-type: local-snapshot
+
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: db-snapshot-short-6h
+  namespace: longhorn-system
+spec:
+  cron: "0 */6 * * *"
+  task: "snapshot"
+  groups:
+    - db-snapshot-short
+  retain: 4
+  concurrency: 1
+  labels:
+    backup-tier: db-snapshot-short
+    backup-type: local-snapshot
+
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: db-dr-backup-weekly
+  namespace: longhorn-system
+spec:
+  cron: "0 4 * * 0"
+  task: "backup"
+  groups:
+    - db-dr-weekly
+  retain: 2
+  concurrency: 1
+  labels:
+    backup-tier: db-dr-weekly
+    backup-type: volume-backup
