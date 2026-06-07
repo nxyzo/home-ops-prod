@@ -42,7 +42,7 @@ spec:
       storageMinimalAvailablePercentage: "10"
       storageReservedPercentageForDefaultDisk: "20"
     defaultBackupStore:
-      backupTarget: s3://home-ops-test-longhorn-backup@eu-central-003/
+      backupTarget: s3://home-ops-prod-longhorn-backup@eu-central-003/
       backupTargetCredentialSecret: longhorn-s3-secret
     ingress:
       enabled: false
