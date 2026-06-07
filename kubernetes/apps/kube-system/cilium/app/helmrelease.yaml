@@ -66,6 +66,12 @@ spec:
             - drop_reason_desc
             - l4
             - Type
+          allowList:
+          # Export all dropped packets
+          - '{"verdict":["DROPPED"]}'
+        denyList:
+          # Exclude health checks
+          - '{"destination_pod":["kube-system/"]}'
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.42.0.0/16"
