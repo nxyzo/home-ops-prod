@@ -29,7 +29,7 @@ spec:
           unhealthyPodEvictionPolicy: AlwaysAllow
         alertmanagerConfiguration:
           name: alertmanager
-        externalUrl: https://alertmanager.${SECRET-DOMAIN}
+        externalUrl: https://alertmanager.${SECRET_DOMAIN}
         storage:
           volumeClaimTemplate:
             spec:
@@ -50,12 +50,12 @@ spec:
         main:
           enabled: true
           hostnames:
-            - prometheus.${SECRET-DOMAIN}
+            - prometheus.${SECRET_DOMAIN}
           parentRefs:
             - name: envoy-internal
               namespace: network
       prometheusSpec:
-        externalUrl: https://prometheus.${SECRET-DOMAIN}
+        externalUrl: https://prometheus.${SECRET_DOMAIN}
         version: v2.55.1 # override 'unsupported Prometheus version' error
         image:
           registry: docker.io
