@@ -52,5 +52,3 @@ spec:
         enabled: true
     networkPolicies:
       enabled: false
-    persistence:
-      dataEngine: "v2"
