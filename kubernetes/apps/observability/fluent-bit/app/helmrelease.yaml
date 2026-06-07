@@ -111,8 +111,7 @@ spec:
           match hubble.*
           host victoria-logs-server.observability.svc.cluster.local
           port 9428
-          uri /insert/jsonline?_stream_fields=stream,source.namespace,source.pod_name,destination.namespace,destination.pod_name,verdict,drop_reason_desc&_msg_field=summary&_time_field=time
-          format json_lines
+          uri /insert/jsonline?_stream_fields=stream,source.namespace,source.pod_name,destination.namespace,destination.pod_name,verdict,drop_reason_desc&_msg_field=_msg&_time_field=time
           json_date_format iso8601
           compress gzip
           log_response_payload false
