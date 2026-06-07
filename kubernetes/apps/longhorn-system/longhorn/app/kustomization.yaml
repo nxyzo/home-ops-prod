@@ -6,5 +6,5 @@ resources:
 - ./helmrepository.yaml
 - ./httproute.yaml
 - ./secret.sops.yaml
-- ./reaccuring-jobs.yaml
+- ./reccuring-jobs.yaml
 - ./storageclasses.yaml
