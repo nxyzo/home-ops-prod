@@ -20,4 +20,4 @@ spec:
         enabled: true
     podmonitor:
       # Create a PodMonitor to add cert-manager to Prometheus.
-      enabled: false
+      enabled: true
