@@ -118,11 +118,14 @@ spec:
           Rename flow_drop_reason drop_reason
           Rename flow_drop_reason_desc drop_reason_desc
           Rename flow_Summary summary
-          Rename source_namespace source_namespace
           Rename source_pod_name source_pod
-          Rename destination_namespace destination_namespace
           Rename destination_pod_name destination_pod
           Add stream hubble
+
+        [FILTER]
+          name grep
+          match hubble
+          exclude drop_reason_desc UNSUPPORTED_L3_PROTOCOL
 
       customParsers: |-
         [PARSER]
