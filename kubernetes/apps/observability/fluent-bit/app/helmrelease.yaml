@@ -160,7 +160,7 @@ spec:
           match hubble.*
           host victoria-logs-server.observability.svc.cluster.local
           port 9428
-          uri /insert/jsonline?_stream_fields=stream,flow_verdict,flow_drop_reason_desc,flow_source_namespace,flow_source_pod_name,flow_destination_namespace,flow_destination_pod_name,flow_IP_source,flow_IP_destination,flow_l4_TCP_source_port,flow_l4_TCP_destination_port,flow_l4_UDP_source_port,flow_l4_UDP_destination_port&_msg_field=_msg&_time_field=time
+          uri /insert/jsonline?_stream_fields=stream,flow_verdict,flow_drop_reason_desc,flow_source_namespace,flow_source_pod_name,flow_destination_namespace,flow_destination_pod_name,flow_IP_source,flow_IP_destination,flow_l4_TCP_source_port,flow_l4_TCP_destination_port,flow_l4_UDP_source_port,flow_l4_UDP_destination_port&_msg_field=flow_drop_reason_desc&_time_field=time
           format json_stream
           json_date_format iso8601
           compress gzip
