@@ -56,36 +56,33 @@ spec:
           fieldMask:
             - time
             - verdict
-            - drop_reason_desc     # menschenlesbarer Drop-Grund
-            - drop_reason          # numerischer Code (für Alerting)
-            - Type                 # event_type → CiliumEventType (Großbuchstabe!)
-            - event_type           # alternative Schreibweise (je nach Cilium-Version)
-            - traffic_direction    # INGRESS / EGRESS
-            - is_reply             # asymmetrische Drops erkennen
-            - node_name            # auf welchem Node hat der Drop stattgefunden
+            - drop_reason_desc
+            - drop_reason
+            - Type
+            - traffic_direction
+            - is_reply
+            - node_name
             - source.namespace
             - source.pod_name
-            - source.identity      # Security-Identity (für reserved:host etc.)
-            - source.labels        # Labels des Source-Endpoints
-            - source.workloads     # Deployment/DaemonSet-Name
+            - source.identity
+            - source.labels
+            - source.workloads
             - destination.namespace
             - destination.pod_name
             - destination.identity
             - destination.labels
             - destination.workloads
-            - source_service       # Service-Objekt als Quelle
-            - destination_service  # Service-Objekt als Ziel
-            - IP                   # src/dst IP + ip_version (Großbuchstabe!)
-            - l4                   # TCP/UDP/ICMP Ports
-            - l7                   # HTTP/gRPC/DNS bei L7-Policy-Drops
-            - Summary              # lesbarer Einzeiler (Großbuchstabe!)
+            - source_service
+            - destination_service
+            - IP
+            - l4
+            - l7
+            - Summary
           allowList:
             - '{"verdict":["DROPPED","ERROR"]}'
-            - '{"verdict":["DROPPED"],"type":["L3_L4","L7"]}'
           denyList:
             - '{"source_pod":["kube-system/"]}'
             - '{"destination_pod":["kube-system/"]}'
-            - '{"source_pod":["kube-system/cilium"]}'
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.42.0.0/16"
