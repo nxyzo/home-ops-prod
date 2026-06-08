@@ -58,21 +58,14 @@ spec:
             - verdict
             - drop_reason_desc
             - drop_reason
-            - Type
+            - event_type
             - traffic_direction
-            - is_reply
-            - node_name
             - source.namespace
             - source.pod_name
             - source.identity
-            - source.labels
-            - source.workloads
             - destination.namespace
             - destination.pod_name
             - destination.identity
-            - destination.labels
-            - destination.workloads
-            - source_service
             - destination_service
             - IP
             - l4
@@ -83,6 +76,7 @@ spec:
           denyList:
             - '{"source_pod":["kube-system/"]}'
             - '{"destination_pod":["kube-system/"]}'
+            - '{"source_pod":["kube-system/cilium"]}'
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.42.0.0/16"
