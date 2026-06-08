@@ -63,6 +63,7 @@ spec:
             - source.namespace
             - source.pod_name
             - source.identity
+            - source_service
             - destination.namespace
             - destination.pod_name
             - destination.identity
