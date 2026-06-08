@@ -33,7 +33,7 @@ spec:
       enabled: false
     hubble:
       enabled: true
-      eventBufferCapacity: 8191
+      eventBufferCapacity: 16383
       relay:
         enabled: true
       ui:
