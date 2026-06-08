@@ -76,39 +76,53 @@ spec:
           rename k_labels_app app
           rename k_labels_k8s-app app
 
-        # Hubble: source.* -> source_*
+        # Hubble: flow.* -> flow_*
         [FILTER]
-          name nest
-          match hubble
-          operation lift
-          nested_under source
-          add_prefix source_
+          Name nest
+          Match hubble
+          Operation lift
+          Nested_under flow
+          Add_prefix flow_
 
-        # Hubble: destination.* -> destination_*
+        # Hubble: flow_source.* -> source_*
         [FILTER]
-          name nest
-          match hubble
-          operation lift
-          nested_under destination
-          add_prefix destination_
+          Name nest
+          Match hubble
+          Operation lift
+          Nested_under flow_source
+          Add_prefix source_
 
-        # Hubble: IP.* -> flow_IP_*
+        # Hubble: flow_destination.* -> destination_*
         [FILTER]
-          name nest
-          match hubble
-          operation lift
-          nested_under IP
-          add_prefix flow_IP_
+          Name nest
+          Match hubble
+          Operation lift
+          Nested_under flow_destination
+          Add_prefix destination_
+
+        # Hubble: flow_IP.* -> flow_IP_*
+        [FILTER]
+          Name nest
+          Match hubble
+          Operation lift
+          Nested_under flow_IP
+          Add_prefix flow_IP_
 
         # Hubble: normalize field names
         [FILTER]
-          name modify
-          match hubble
-          rename traffic_direction direction
-          rename source_pod_name source_pod
-          rename destination_pod_name destination_pod
-          rename Summary summary
-          add stream hubble
+          Name modify
+          Match hubble
+          Rename flow_time _time
+          Rename flow_verdict verdict
+          Rename flow_traffic_direction direction
+          Rename flow_drop_reason drop_reason
+          Rename flow_drop_reason_desc drop_reason_desc
+          Rename flow_Summary summary
+          Rename source_namespace source_namespace
+          Rename source_pod_name source_pod
+          Rename destination_namespace destination_namespace
+          Rename destination_pod_name destination_pod
+          Add stream hubble
 
       customParsers: |-
         [PARSER]
@@ -142,7 +156,7 @@ spec:
           Match hubble
           Host victoria-logs-server.observability.svc.cluster.local
           Port 9428
-          URI /insert/jsonline?_stream_fields=stream,flow.verdict,flow.traffic_direction,flow.drop_reason_desc&_msg_field=flow.Summary&_time_field=flow.time
+          URI /insert/jsonline?_stream_fields=stream,verdict,direction,drop_reason_desc,source_namespace,destination_namespace&_msg_field=summary&_time_field=_time
           Format json_lines
           Json_date_format iso8601
           Compress gzip
