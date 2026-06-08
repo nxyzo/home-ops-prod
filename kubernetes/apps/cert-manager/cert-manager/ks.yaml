@@ -38,7 +38,7 @@ metadata:
   namespace: kube-system
 spec:
   dependsOn:
-    - name: cilium
+    - name: cert-manager
     - name: grafana
       namespace: observability
   interval: 1h
