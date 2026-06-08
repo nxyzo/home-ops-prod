@@ -1,5 +1,3 @@
----
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -35,11 +33,15 @@ spec:
 
         [INPUT]
           name tail
+          alias hubble
           path /var/run/cilium/hubble/events.log
           tag hubble.*
           parser hubble_json
           refresh_interval 5
           rotate_wait 30
+          buffer_chunk_size 512k
+          buffer_max_size 10MB
+          read_from_head false
 
       filters: |-
         [FILTER]
@@ -124,10 +126,52 @@ spec:
           add_prefix flow_l4_UDP_
 
         [FILTER]
+          name nest
+          match hubble.*
+          operation lift
+          nested_under flow_l7
+          add_prefix flow_l7_
+
+        [FILTER]
+          name nest
+          match hubble.*
+          operation lift
+          nested_under flow_l7_http
+          add_prefix flow_l7_http_
+
+        [FILTER]
+          name nest
+          match hubble.*
+          operation lift
+          nested_under flow_l7_dns
+          add_prefix flow_l7_dns_
+
+        [FILTER]
+          name nest
+          match hubble.*
+          operation lift
+          nested_under flow_source_workloads
+          add_prefix flow_source_workload_
+
+        [FILTER]
+          name nest
+          match hubble.*
+          operation lift
+          nested_under flow_destination_workloads
+          add_prefix flow_destination_workload_
+
+        [FILTER]
           name modify
           match hubble.*
           add stream hubble
+          # Menschenlesbarer Drop-Grund als Hauptnachricht
           copy flow_drop_reason_desc _msg
+          # Kurzaliase für einfachere VictoriaLogs-Queries
+          copy flow_verdict verdict
+          copy flow_traffic_direction direction
+          copy flow_type flow_type
+          copy flow_is_reply is_reply
+          copy flow_Summary summary
 
       customParsers: |-
         [PARSER]
@@ -136,6 +180,7 @@ spec:
           regex ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
           time_key time
           time_format %Y-%m-%dT%H:%M:%S.%L%z
+
         [PARSER]
           name hubble_json
           format json
@@ -160,8 +205,8 @@ spec:
           match hubble.*
           host victoria-logs-server.observability.svc.cluster.local
           port 9428
-          uri /insert/jsonline?_stream_fields=stream,flow_verdict,flow_drop_reason_desc,flow_source_namespace,flow_source_pod_name,flow_destination_namespace,flow_destination_pod_name,flow_IP_source,flow_IP_destination,flow_l4_TCP_source_port,flow_l4_TCP_destination_port,flow_l4_UDP_source_port,flow_l4_UDP_destination_port&_msg_field=flow_drop_reason_desc&_time_field=time
-          format json_stream
+          uri /insert/jsonline?_stream_fields=stream,verdict,direction,flow_type,flow_drop_reason_desc,flow_source_namespace,flow_source_pod_name,flow_destination_namespace,flow_destination_pod_name,flow_IP_source,flow_IP_destination,flow_l4_TCP_source_port,flow_l4_TCP_destination_port,flow_l4_UDP_source_port,flow_l4_UDP_destination_port&_msg_field=flow_drop_reason_desc&_time_field=time
+          format json_lines
           json_date_format iso8601
           compress gzip
           log_response_payload false

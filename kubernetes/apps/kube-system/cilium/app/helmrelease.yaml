@@ -51,27 +51,38 @@ spec:
         static:
           enabled: true
           filePath: /var/run/cilium/hubble/events.log
-          # Maximum file size before rotation (in MB)
           fileMaxSizeMb: 10
-          # Maximum number of backup files to keep
           fileMaxBackups: 5
-          # Field mask to control which fields are exported
           fieldMask:
             - time
-            - source.namespace
-            - source.pod_name
-            - destination.namespace
-            - destination.pod_name
             - verdict
             - drop_reason_desc
+            - drop_reason
+            - type
+            - traffic_direction
+            - is_reply
+            - reply
+            - source.namespace
+            - source.pod_name
+            - source.workloads
+            - source.labels
+            - destination.namespace
+            - destination.pod_name
+            - destination.workloads
+            - destination.labels
+            - destination.service
+            - ip
             - l4
-            - Type
+            - l7
+            - policy_match_type
+            - Summary
           allowList:
-            # Export all dropped packets
-            - '{"verdict":["DROPPED"]}'
+            - '{"verdict":["DROPPED","ERROR"]}'
+            - '{"verdict":["DROPPED"],"type":["L3_L4","L7"]}'
           denyList:
-            # Exclude health checks
+            - '{"source_pod":["kube-system/"]}'
             - '{"destination_pod":["kube-system/"]}'
+            - '{"source_pod":["kube-system/cilium"]}'
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.42.0.0/16"
