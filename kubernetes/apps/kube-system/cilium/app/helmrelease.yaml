@@ -38,6 +38,9 @@ spec:
       ui:
         enabled: true
       metrics:
+        serviceMonitor:
+          enabled: true
+        enableOpenMetrics: true
         enabled:
           - dns
           - drop
