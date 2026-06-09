@@ -6,11 +6,11 @@ metadata:
   labels:
     prometheus: cert-manager
     role: alert-rules
-  name: prometheus-cert-manager-rules
+  name: prometheus-cert-manager-alertrules
   namespace: observability
 spec:
   groups:
-  - name: EmbeddedExporter
+  - name: prometheus-cert-manager-rules
     rules:
       - alert: Cert-managerAbsent
         expr: 'absent(up{job="cert-manager"})'
