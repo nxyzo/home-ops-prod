@@ -5,7 +5,6 @@ kind: GrafanaDashboard
 metadata:
   name: cert-manager
 spec:
-  #folder: cert-manager
   allowCrossNamespaceImport: true
   instanceSelector:
     matchLabels:
