@@ -10,7 +10,7 @@ metadata:
   namespace: observability
 spec:
   groups:
-  - name: prometheus-cert-manager-rules
+  - name: prometheus-cert-manager-alertrules
     rules:
       - alert: Cert-managerAbsent
         expr: 'absent(up{job="cert-manager"})'
