@@ -27,4 +27,4 @@ spec:
   datasources:
     - datasourceName: prometheus
       inputName: DS_PROMETHEUS
-  url: https://github.com/fluxcd/flux2-monitoring-example/raw/refs/heads/main/monitoring/configs/dashboards/control-plane.json
+  url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/refs/heads/main/monitoring/configs/dashboards/control-plane.json
