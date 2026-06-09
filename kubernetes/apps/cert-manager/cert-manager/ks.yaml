@@ -40,6 +40,7 @@ spec:
   dependsOn:
     - name: grafana
       namespace: observability
+    - name: cert-manager
   interval: 1h
   path: ./kubernetes/apps/cert-manager/cert-manager/dashboard
   prune: true
