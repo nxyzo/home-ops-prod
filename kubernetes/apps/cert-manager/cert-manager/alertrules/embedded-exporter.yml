@@ -4,7 +4,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   labels:
-    prometheus: kube-system
+    prometheus: cert-manager
     role: alert-rules
   name: prometheus-cert-manager-rules
   namespace: observability
