@@ -12,4 +12,4 @@ spec:
   datasources:
     - datasourceName: prometheus
       inputName: DS_PROMETHEUS
-  url: kubernetes/apps/cert-manager/cert-manager/dashboard/grafanadashboard.yaml kubernetes/apps/cert-manager/cert-manager/dashboard/kustomization.yaml
+  url: https://grafana.com/api/dashboards/17457/revisions/6/download
