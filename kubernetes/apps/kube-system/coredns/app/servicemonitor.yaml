@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-dns-metrics
+  namespace: kube-system
+  labels:
+    k8s-app: kube-dns
+spec:
+  selector:
+    k8s-app: kube-dns
+  ports:
+  - name: metrics
+    port: 9153
+    targetPort: 9153
+    protocol: TCP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: coredns
+  namespace: kube-system
+  labels:
+    app: coredns
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kube-dns
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
