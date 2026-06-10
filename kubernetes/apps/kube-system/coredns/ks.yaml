@@ -24,7 +24,7 @@ metadata:
   name: coredns-alertrules
 spec:
   interval: 1h
-  path: ./kubernetes/apps/kube-system/coredns/alertrules
+  path: ./kubernetes/apps/kube-system/coredns/app/alertrules
   prune: true
   sourceRef:
     kind: GitRepository
