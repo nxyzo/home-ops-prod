@@ -13,15 +13,6 @@ spec:
   groups:
   - name: coredns
     rules:
-    - alert: CoreDNSDown
-      annotations:
-        message: CoreDNS has disappeared from Prometheus target discovery.
-        runbook_url: https://github.com/povilasv/coredns-mixin/tree/master/runbook.md#alert-name-corednsdown
-      expr: |
-        absent(up{job="kube-dns"} == 1)
-      for: 15m
-      labels:
-        severity: critical
     - alert: CoreDNSLatencyHigh
       annotations:
         message: CoreDNS has 99th percentile latency of {{ $value }} seconds for server
@@ -110,3 +101,11 @@ spec:
       for: 10m
       labels:
         severity: warning
+    - alert: CoreDNSPanicCount
+      expr: increase(coredns_panics_total[1m]) > 0
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: CoreDNS Panic Count (instance {{ $labels.instance }})
+        description: "Number of CoreDNS panics encountered\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
