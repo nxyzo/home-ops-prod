@@ -1,30 +1,10 @@
-apiVersion: monitoring.coreos.com/v1
-kind: PrometheusRule
-metadata:
-  name: gateway-api-rules
-  namespace: observability
-spec:
-  groups:
-  - name: gateway-api.rules
-    rules:
-    - alert: UnhealthyGateway
-      annotations:
-        description: Gateway {{ $labels.namespace }}/{{$labels.name}} has an unhealthy status
-        summary: Either the Accepted or Programmed status is not True
-      expr: |
-        (gatewayapi_gateway_status{type="Accepted"} == 0) or (gatewayapi_gateway_status{type="Programmed"} == 0)
-      for: 10m
-      labels:
-        severity: critical
-    - alert: InsecureHTTPListener
-      annotations:
-        description: Gateway {{ $labels.namespace }}/{{$labels.name}} has an insecure listener {{$labels.protocol}}/{{$labels.port}}
-        summary: Listeners must use HTTPS
-      expr: |
-        gatewayapi_gateway_listener_info{protocol="HTTP"}
-      for: 10m
-      labels:
-        severity: critical
+groups:
+
+- name: EmbeddedExporter
+
+  
+  rules:
+
     - alert: EnvoyServerNotLive
       expr: 'envoy_server_live != 1'
       for: 1m
@@ -195,4 +175,3 @@ spec:
       annotations:
         summary: Envoy high downstream request timeout rate (instance {{ $labels.instance }})
         description: "Downstream requests are timing out on {{ $labels.instance }} ({{ $value }} in the last 5m)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-
