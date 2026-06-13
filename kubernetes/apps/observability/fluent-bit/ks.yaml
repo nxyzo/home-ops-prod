@@ -22,7 +22,7 @@ metadata:
   name: fluent-bit-dasbhoard
 spec:
   interval: 1h
-  path: ./kubernetes/apps/observability/fluent-bit/dasboard
+  path: ./kubernetes/apps/observability/fluent-bit/dashboard
   prune: true
   sourceRef:
     kind: GitRepository
