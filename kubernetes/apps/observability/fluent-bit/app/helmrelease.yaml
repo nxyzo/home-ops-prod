@@ -43,6 +43,16 @@ spec:
           skip_long_lines on
           db /var/log/flb_hubble.db
 
+        [INPUT]
+          Name tcp
+          Alias talos
+          Listen 0.0.0.0
+          Port 5170
+          Format json
+          Tag talos
+          Threaded true
+          Buffer_Size 256KB
+
       filters: |-
         [FILTER]
           name kubernetes
@@ -127,6 +137,14 @@ spec:
           match hubble
           exclude drop_reason_desc UNSUPPORTED_L3_PROTOCOL
 
+        [FILTER]
+          Name modify
+          Match talos
+          Rename talos-time _time
+          Rename talos-level level
+          Rename talos-service service
+          Add stream talos
+
       customParsers: |-
         [PARSER]
           name containerd
@@ -165,6 +183,17 @@ spec:
           Compress gzip
           Log_Response_Payload false
 
+        [OUTPUT]
+          Name http
+          Match talos
+          Host victoria-logs-server.observability.svc.cluster.local
+          Port 9428
+          URI /insert/jsonline?_stream_fields=stream,service,level&_msg_field=msg&_time_field=_time
+          Format json_lines
+          Json_date_format iso8601
+          Compress gzip
+          Log_Response_Payload false
+
     extraVolumes:
       - name: cilium-hubble
         hostPath:
@@ -175,6 +204,12 @@ spec:
       - name: cilium-hubble
         mountPath: /var/run/cilium/hubble
         readOnly: true
+
+    extraPorts:
+      - name: talos
+        port: 5170
+        containerPort: 5170
+        protocol: TCP
 
     dashboards:
       enabled: true
