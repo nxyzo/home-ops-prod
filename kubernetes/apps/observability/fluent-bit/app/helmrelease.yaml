@@ -8,6 +8,10 @@ spec:
     name: fluent-bit
   interval: 1h
   values:
+    kind: DaemonSet
+    hostNetwork: true
+    dnsPolicy: ClusterFirstWithHostNet
+
     config:
       service: |-
         [SERVICE]
