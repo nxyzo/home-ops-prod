@@ -230,6 +230,7 @@ patches:
   - "@./patches/global/machine-network.yaml"
   - "@./patches/global/machine-sysctls.yaml"
   - "@./patches/global/machine-time.yaml"
+  - "@./patches/global/machine-logging.yaml"
 
 # Controller patches
 controlPlane:

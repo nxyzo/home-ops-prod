@@ -1,0 +1,7 @@
+# talos-logging-patch.yaml
+# Forward Talos machine logs to a centralized collector
+machine:
+  logging:
+    destinations:
+      - endpoint: "tcp://127.0.0.1:5170/"
+        format: json_lines
