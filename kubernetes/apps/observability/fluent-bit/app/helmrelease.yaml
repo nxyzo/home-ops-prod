@@ -146,8 +146,23 @@ spec:
           Match talos
           Rename talos-time _time
           Rename talos-level level
-          Rename talos-service service
           Add stream talos
+
+        # Talos Service-Logs
+        [FILTER]
+          Name modify
+          Match talos
+          Condition Key_exists talos-service
+          Rename talos-service service
+          Add source service
+
+        # Talos Kernel-Logs
+        [FILTER]
+          Name modify
+          Match talos
+          Condition Key_exists facility
+          Add source kernel
+          Add service kernel
 
       customParsers: |-
         [PARSER]
@@ -192,7 +207,7 @@ spec:
           Match talos
           Host victoria-logs-server.observability.svc.cluster.local
           Port 9428
-          URI /insert/jsonline?_stream_fields=stream,service,level&_msg_field=msg&_time_field=_time
+          URI /insert/jsonline?_stream_fields=stream,source,service,level&_msg_field=msg&_time_field=_time
           Format json_lines
           Json_date_format iso8601
           Compress gzip
