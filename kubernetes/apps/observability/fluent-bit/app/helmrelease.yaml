@@ -67,7 +67,7 @@ spec:
           Alias kubernetes-audit
           Path /var/log/audit/kube/*.log
           Parser kubernetes_audit
-          Tag kubernetes.audit
+          Tag audit.kubernetes
           Read_From_Head false
           Refresh_Interval 5
           Rotate_Wait 30
@@ -190,7 +190,7 @@ spec:
         # Kubernetes API Audit Logs
         [FILTER]
           Name modify
-          Match kubernetes.audit
+          Match audit.kubernetes
           Add stream kubernetes-audit
           Add source kubernetes-api
           Add node ${NODE_NAME}
@@ -253,12 +253,15 @@ spec:
 
         [OUTPUT]
           Name http
-          Match kubernetes.audit
+          Match audit.kubernetes
           Host victoria-logs-server.observability.svc.cluster.local
           Port 9428
-          URI /insert/jsonline?_stream_fields=stream,node&_msg_field=requestURI&_time_field=requestReceivedTimestamp
+          URI /insert/jsonline
+          Header VL-Msg-Field requestURI
+          Header VL-Time-Field requestReceivedTimestamp
+          Header VL-Stream-Fields stream,node
           Format json_lines
-          Json_date_format iso8601
+          Json_Date_Format iso8601
           Compress gzip
           Log_Response_Payload false
           Retry_Limit false
