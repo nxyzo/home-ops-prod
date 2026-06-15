@@ -340,10 +340,10 @@ spec:
           description: "A client certificate used to authenticate to the apiserver is expiring in less than 24.0 hours.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: KubernetesApiServerLatency
-        expr: 'histogram_quantile(0.99, sum(rate(apiserver_request_duration_seconds_bucket{verb!~"(?:CONNECT|WATCHLIST|WATCH|PROXY)"} [10m])) WITHOUT (subresource)) > 1'
-        for: 2m
+        expr: '(histogram_quantile(0.99, sum without (subresource) (rate(apiserver_request_duration_seconds_bucket{verb!~"CONNECT|WATCHLIST|WATCH|PROXY"}[15m]))) > 1) and (sum without (subresource) (increase(apiserver_request_duration_seconds_count{verb!~"CONNECT|WATCHLIST|WATCH|PROXY"}[15m])) >= 100)'
+        for: 10m
         labels:
           severity: warning
         annotations:
           summary: Kubernetes API server latency (instance {{ $labels.instance }})
-          description: "Kubernetes API server has a 99th percentile latency of {{ $value }} seconds for {{ $labels.verb }} {{ $labels.resource }}.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Kubernetes API server P99 latency has remained above 1 second for {{ $labels.verb }} {{ $labels.resource }}.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
