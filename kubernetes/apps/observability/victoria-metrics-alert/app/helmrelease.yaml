@@ -35,6 +35,24 @@ spec:
       notifier:
         url: http://alertmanager-operated.observability.svc.cluster.local:9093
 
+      config:
+        alerts:
+          groups:
+            - name: victoria-logs
+              type: vlogs
+              interval: 5m
+              rules:
+                - alert: TooManyErrorLogs
+                  expr: 'error | stats count() as error_logs | filter error_logs:>100'
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: Too many error logs
+                    description: >-
+                      More than 100 log entries containing "error" were found
+                      during the last 5 minutes.
+
       route:
         enabled: true
         hostnames:
@@ -51,10 +69,10 @@ spec:
         capabilities:
           drop:
             - ALL
-        allowPrivilegeEscalation: false
         readOnlyRootFilesystem: true
         runAsNonRoot: true
         runAsUser: 1000
+        allowPrivilegeEscalation: false
 
       resources:
         requests:
@@ -69,8 +87,7 @@ spec:
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
-              app.kubernetes.io/instance: victoria-metrics-alert
-              app.kubernetes.io/component: vmalert
+              app.kubernetes.io/name: victoria-metrics-alert
 
     serviceMonitor:
       enabled: true
