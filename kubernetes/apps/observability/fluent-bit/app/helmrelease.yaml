@@ -11,6 +11,11 @@ spec:
     kind: DaemonSet
     hostNetwork: true
     dnsPolicy: ClusterFirstWithHostNet
+    env:
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
 
     config:
       service: |-
@@ -56,6 +61,23 @@ spec:
           Tag talos
           Threaded true
           Buffer_Size 256KB
+
+        [INPUT]
+          Name tail
+          Alias kubernetes-audit
+          Path /var/log/audit/kube/*.log
+          Parser kubernetes_audit
+          Tag kubernetes.audit
+          Read_from_Head false
+          Refresh_Interval 5
+          Rotate_Wait 30
+          Mem_Buf_Limit 100MB
+          Buffer_Chunk_Size 256KB
+          Buffer_Max_Size 2MB
+          Skip_Empty_Lines on
+          Skip_Long_Lines on
+          DB /var/log/flb_kubernetes_audit.db
+          DB_Locking true
 
       filters: |-
         [FILTER]
@@ -164,6 +186,14 @@ spec:
           Add source kernel
           Add service kernel
 
+        # Kubernetes API Audit Logs
+        [FILTER]
+          Name modify
+          Match kubernetes.audit
+          Add stream kubernetes-audit
+          Add source kubernetes-api
+          Add node ${NODE_NAME}
+
       customParsers: |-
         [PARSER]
           name containerd
@@ -178,6 +208,13 @@ spec:
           time_key time
           time_format %Y-%m-%dT%H:%M:%S.%LZ
           time_keep on
+
+        [PARSER]
+          Name kubernetes_audit
+          Format json
+          Time_Key requestReceivedTimestamp
+          Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+          Time_Keep on
 
       outputs: |-
         [OUTPUT]
@@ -212,6 +249,18 @@ spec:
           Json_date_format iso8601
           Compress gzip
           Log_Response_Payload false
+
+        [OUTPUT]
+          Name http
+          Match kubernetes.audit
+          Host victoria-logs-server.observability.svc.cluster.local
+          Port 9428
+          URI /insert/jsonline?_stream_fields=stream,node&_msg_field=requestURI&_time_field=requestReceivedTimestamp
+          Format json_lines
+          Json_date_format iso8601
+          Compress gzip
+          Log_Response_Payload false
+          Retry_Limit false
 
     extraVolumes:
       - name: cilium-hubble
