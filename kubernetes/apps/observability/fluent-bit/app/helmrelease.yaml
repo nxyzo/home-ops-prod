@@ -68,7 +68,7 @@ spec:
           Path /var/log/audit/kube/*.log
           Parser kubernetes_audit
           Tag kubernetes.audit
-          Read_from_Head false
+          Read_From_Head false
           Refresh_Interval 5
           Rotate_Wait 30
           Mem_Buf_Limit 100MB
@@ -77,7 +77,8 @@ spec:
           Skip_Empty_Lines on
           Skip_Long_Lines on
           DB /var/log/flb_kubernetes_audit.db
-          DB_Locking true
+          DB.Locking true
+          DB.Sync normal
 
       filters: |-
         [FILTER]
