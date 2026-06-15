@@ -1,0 +1,76 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: victoria-metrics-alert
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: victoria-metrics-alert
+  interval: 1h
+
+  values:
+    serviceAccount:
+      create: true
+      automountToken: false
+
+    server:
+      replicaCount: 3
+
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 2
+        unhealthyPodEvictionPolicy: AlwaysAllow
+
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 0
+
+      minReadySeconds: 10
+
+      datasource:
+        url: http://victoria-logs-server.observability.svc.cluster.local:9428
+
+      notifier:
+        url: http://alertmanager-operated.observability.svc.cluster.local:9093
+
+      route:
+        enabled: true
+        hostnames:
+          - vm-alerts.${SECRET_DOMAIN}
+        parentRefs:
+          - name: envoy-internal
+            namespace: network
+
+      podSecurityContext:
+        enabled: true
+
+      securityContext:
+        enabled: true
+        capabilities:
+          drop:
+            - ALL
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 1000
+
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          memory: 256Mi
+
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: victoria-metrics-alert
+              app.kubernetes.io/component: vmalert
+
+    serviceMonitor:
+      enabled: true

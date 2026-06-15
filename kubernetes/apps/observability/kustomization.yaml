@@ -14,3 +14,4 @@ resources:
   - ./grafana/ks.yaml
   - ./victoria-logs/ks.yaml
   - ./fluent-bit/ks.yaml
+  - ./victoria-metrics-alert/ks.yaml
