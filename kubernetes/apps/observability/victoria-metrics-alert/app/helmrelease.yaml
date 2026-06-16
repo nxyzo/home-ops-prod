@@ -88,9 +88,18 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: victoria-metrics-alert
-      envFrom:
-        - configMapRef:
+
+      extraVolumes:
+        - name: external-alert-rules
+          configMap:
             name: victoria-metrics-alert-rules
+      extraVolumeMounts:
+        - name: external-alert-rules
+          mountPath: /external-rules
+          readOnly: true
+      extraArgs:
+        rule:
+          - /external-rules/alert-rules.yaml
 
     serviceMonitor:
       enabled: true
