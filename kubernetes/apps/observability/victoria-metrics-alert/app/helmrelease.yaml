@@ -91,3 +91,7 @@ spec:
 
     serviceMonitor:
       enabled: true
+
+      envFrom:
+        - configMapRef:
+           name: victoria-metrics-alert-rules
