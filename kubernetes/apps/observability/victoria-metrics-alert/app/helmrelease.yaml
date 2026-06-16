@@ -7,6 +7,7 @@ spec:
     kind: OCIRepository
     name: victoria-metrics-alert
   interval: 1h
+  timeout: 10m
 
   values:
     serviceAccount:
@@ -25,7 +26,7 @@ spec:
         type: RollingUpdate
         rollingUpdate:
           maxSurge: 1
-          maxUnavailable: 0
+          maxUnavailable: 1
 
       minReadySeconds: 10
 
@@ -34,24 +35,6 @@ spec:
 
       notifier:
         url: http://alertmanager-operated.observability.svc.cluster.local:9093
-
-      config:
-        alerts:
-          groups:
-            - name: victoria-logs
-              type: vlogs
-              interval: 5m
-              rules:
-                - alert: TooManyErrorLogs
-                  expr: 'error | stats count() as error_logs | filter error_logs:>100'
-                  for: 5m
-                  labels:
-                    severity: warning
-                  annotations:
-                    summary: Too many error logs
-                    description: >-
-                      More than 100 log entries containing "error" were found
-                      during the last 5 minutes.
 
       route:
         enabled: true
@@ -84,7 +67,7 @@ spec:
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
+          whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: victoria-metrics-alert
@@ -93,10 +76,12 @@ spec:
         - name: external-alert-rules
           configMap:
             name: victoria-metrics-alert-rules
+
       extraVolumeMounts:
         - name: external-alert-rules
           mountPath: /external-rules
           readOnly: true
+
       extraArgs:
         rule:
           - /external-rules/alert-rules.yaml
