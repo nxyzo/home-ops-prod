@@ -347,3 +347,24 @@ spec:
         annotations:
           summary: Kubernetes API server latency (instance {{ $labels.instance }})
           description: "Kubernetes API server P99 latency has remained above 1 second for {{ $labels.verb }} {{ $labels.resource }}.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+  - name: cpu-monitoring
+    interval: 1m
+    rules:
+      - record: instance:cpu_usage:avg5m
+        expr: avg by (instance) (rate(cpu_usage[5m]))
+
+      - alert: HighCPUUsage
+        expr: instance:cpu_usage:avg5m > 80
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          description: "Instance {{ $labels.instance }} has high CPU usage for over 5 minutes."
+
+      - alert: HighCPUOffHours
+        expr: (hour() >= 0 and hour() < 6) and instance:cpu_usage:avg5m > 50
+        for: 15m
+        labels:
+            severity: warning
+        annotations:
+            description: "Instance {{ $labels.instance }} has CPU usage above 50% during off-hours (midnight to 6 AM). Unexpected load detected."
