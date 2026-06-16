@@ -88,10 +88,9 @@ spec:
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: victoria-metrics-alert
+      envFrom:
+        - configMapRef:
+            name: victoria-metrics-alert-rules
 
     serviceMonitor:
       enabled: true
-
-      envFrom:
-        - configMapRef:
-           name: victoria-metrics-alert-rules
