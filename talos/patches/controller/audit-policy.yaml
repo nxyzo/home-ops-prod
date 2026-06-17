@@ -1,118 +1,66 @@
-cluster:
-  apiServer:
-    auditPolicy:
-      apiVersion: audit.k8s.io/v1
-      kind: Policy
+# audit-policy.yaml
 
-      # Skip the RequestReceived stage to avoid logging each request twice.
-      # Requests are still logged after they have been processed.
-      omitStages:
-        - RequestReceived
+# Kubernetes audit policy for production Talos clusters
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  # Do not log read-only requests to certain endpoints
+  - level: None
+    nonResourceURLs:
+      - "/healthz*"
+      - "/readyz*"
+      - "/livez*"
+      - "/metrics"
 
-      rules:
-        # Ignore health checks, readiness checks, metrics, and liveness probes.
-        # These endpoints are accessed frequently and would create excessive noise.
-        - level: None
-          nonResourceURLs:
-            - /healthz*
-            - /readyz*
-            - /livez*
-            - /metrics
+  # Do not log watch requests (very noisy)
+  - level: None
+    verbs: ["watch"]
 
-        # Ignore read-only access to Kubernetes Event resources.
-        # Events are frequently watched by controllers and monitoring systems.
-        - level: None
-          verbs:
-            - get
-            - list
-            - watch
-          resources:
-            - group: ""
-              resources:
-                - events
-            - group: events.k8s.io
-              resources:
-                - events
+  # Do not log kube-proxy reads of endpoints and services
+  - level: None
+    users: ["system:kube-proxy"]
+    verbs: ["get"]
+    resources:
+      - group: ""
+        resources: ["endpoints", "services", "services/status"]
 
-        # Log Secret access as metadata only.
-        # This prevents sensitive Secret values from being written to audit logs.
-        - level: Metadata
-          resources:
-            - group: ""
-              resources:
-                - secrets
+  # Log secret access at the metadata level only
+  # Never log secret contents
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["secrets", "configmaps"]
 
-        # Log request bodies for changes to Kubernetes RBAC resources.
-        # This records who created, modified, or deleted roles and role bindings.
-        - level: Request
-          verbs:
-            - create
-            - update
-            - patch
-            - delete
-            - deletecollection
-          resources:
-            - group: rbac.authorization.k8s.io
-              resources:
-                - roles
-                - rolebindings
-                - clusterroles
-                - clusterrolebindings
+  # Log changes to RBAC at RequestResponse level
+  - level: RequestResponse
+    resources:
+      - group: "rbac.authorization.k8s.io"
+        resources: ["clusterroles", "clusterrolebindings", "roles", "rolebindings"]
 
-        # Log interactive access to containers.
-        # This includes exec sessions, attach sessions, and port forwarding.
-        - level: Request
-          verbs:
-            - create
-          resources:
-            - group: ""
-              resources:
-                - pods/exec
-                - pods/attach
-                - pods/portforward
+  # Log pod execution and attachment (kubectl exec, attach)
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: ["pods/exec", "pods/attach", "pods/portforward"]
 
-        # Log request bodies for changes to important workloads and core resources.
-        - level: Request
-          verbs:
-            - create
-            - update
-            - patch
-            - delete
-            - deletecollection
-          resources:
-            # Kubernetes workload resources.
-            - group: apps
-              resources:
-                - deployments
-                - statefulsets
-                - daemonsets
-                - replicasets
+  # Log all changes to workload resources
+  - level: Request
+    verbs: ["create", "update", "patch", "delete"]
+    resources:
+      - group: ""
+        resources: ["pods", "services", "namespaces", "serviceaccounts"]
+      - group: "apps"
+        resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
 
-            # Kubernetes batch workload resources.
-            - group: batch
-              resources:
-                - jobs
-                - cronjobs
+  # Log authentication events
+  - level: RequestResponse
+    resources:
+      - group: "authentication.k8s.io"
+        resources: ["tokenreviews"]
+      - group: "authorization.k8s.io"
+        resources: ["subjectaccessreviews"]
 
-            # Important resources from the core Kubernetes API group.
-            - group: ""
-              resources:
-                - pods
-                - namespaces
-                - serviceaccounts
-                - nodes
-
-        # Log authorization review requests including their request bodies.
-        # These events are useful for investigating permission checks and access issues.
-        - level: Request
-          resources:
-            - group: authorization.k8s.io
-              resources:
-                - subjectaccessreviews
-                - selfsubjectaccessreviews
-                - localsubjectaccessreviews
-                - selfsubjectrulesreviews
-
-        # Log metadata for every request that did not match an earlier rule.
-        # Request and response bodies are not included by this fallback rule.
-        - level: Metadata
+  # Default: log everything else at Metadata level
+  - level: Metadata
+    omitStages:
+      - "RequestReceived"
