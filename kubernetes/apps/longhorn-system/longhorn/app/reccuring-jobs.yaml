@@ -26,6 +26,7 @@ spec:
   task: "backup"
   groups:
     - app-daily
+    - default
   retain: 7
   concurrency: 2
   labels:
