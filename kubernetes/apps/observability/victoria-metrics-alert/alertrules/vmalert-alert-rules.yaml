@@ -6,6 +6,9 @@ metadata:
 data:
   alert-rules.yaml: |
     groups:
+      # -----------------------------------------------------------------------
+      # Global application and container log health
+      # -----------------------------------------------------------------------
       - name: global-log-health
         type: vlogs
         interval: 5m
@@ -13,37 +16,43 @@ data:
           category: logging
         rules:
           - alert: LogErrorBurstByApplication
-            expr: 'level:error | stats by (app, k_namespace_name) count() as errors | filter errors:>50'
+            expr: 'level:="error" | stats by (app, k_namespace_name) count() as errors | filter errors:>50'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Error burst from {{ $labels.app }}'
-              description: '{{ $value }} errors from {{ $labels.app }} in {{ $labels.k_namespace_name }}.'
+              description: '{{ $value }} errors from {{ $labels.app }} in namespace {{ $labels.k_namespace_name }}.'
 
           - alert: ProcessPanicOrFatal
-            expr: '(panic or fatal or "runtime error" or "segmentation fault") | stats by (app, k_namespace_name, k_pod_name) count() as hits | filter hits:>0'
-            for: 1m
-            labels: {severity: critical}
+            expr: '(level:in("fatal","panic") or "panic:" or "runtime error:" or "segmentation fault") | stats by (app, k_namespace_name, k_pod_name) count() as hits | filter hits:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'Fatal process failure in {{ $labels.k_pod_name }}'
-              description: '{{ $value }} panic/fatal messages from {{ $labels.app }}.'
+              description: '{{ $value }} panic or fatal messages from {{ $labels.app }} in {{ $labels.k_namespace_name }}/{{ $labels.k_pod_name }}.'
 
           - alert: ContainerCrashLoopBurst
-            expr: '("CrashLoopBackOff" or "Back-off restarting failed container" or "container exited") | stats by (k_namespace_name, k_pod_name) count() as hits | filter hits:>10'
+            expr: '("CrashLoopBackOff" or "Back-off restarting failed container" or "back-off restarting failed container") | stats by (k_namespace_name, k_pod_name) count() as hits | filter hits:>5'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Repeated container crashes'
-              description: '{{ $value }} crash/restart events for {{ $labels.k_namespace_name }}/{{ $labels.k_pod_name }}.'
+              description: '{{ $value }} crash or restart events for {{ $labels.k_namespace_name }}/{{ $labels.k_pod_name }}.'
 
           - alert: ImagePullFailureBurst
             expr: '("ErrImagePull" or "ImagePullBackOff" or "failed to pull image" or "pull access denied") | stats by (k_namespace_name, k_pod_name) count() as failures | filter failures:>5'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Repeated image pull failures'
-              description: '{{ $value }} failures for {{ $labels.k_namespace_name }}/{{ $labels.k_pod_name }}.'
+              description: '{{ $value }} image pull failures for {{ $labels.k_namespace_name }}/{{ $labels.k_pod_name }}.'
 
+      # -----------------------------------------------------------------------
+      # Flux / GitOps
+      # -----------------------------------------------------------------------
       - name: flux
         type: vlogs
         interval: 5m
@@ -51,29 +60,35 @@ data:
           category: gitops
         rules:
           - alert: FluxReconciliationFailureBurst
-            expr: 'app:in("source-controller","kustomize-controller","helm-controller","notification-controller","flux-operator") (level:error or "reconciliation failed") | stats by (app) count() as failures | filter failures:>10'
+            expr: 'app:in("source-controller","kustomize-controller","helm-controller","notification-controller","flux-operator") (level:="error" or "reconciliation failed") | stats by (app) count() as failures | filter failures:>10'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Flux reconciliation failures in {{ $labels.app }}'
-              description: '{{ $value }} failures logged by {{ $labels.app }}.'
+              description: '{{ $value }} reconciliation failures logged by {{ $labels.app }}.'
 
           - alert: FluxHelmReleaseFailure
-            expr: 'app:"helm-controller" ("Helm install failed" or "Helm upgrade failed" or "rollback failed") | stats count() as failures | filter failures:>0'
+            expr: 'app:="helm-controller" ("Helm install failed" or "Helm upgrade failed" or "rollback failed") | stats count() as failures | filter failures:>0'
             for: 5m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Flux Helm release failed'
-              description: '{{ $value }} Helm release failures.'
+              description: '{{ $value }} Helm release failures were logged.'
 
           - alert: FluxSourceFailure
-            expr: 'app:"source-controller" ("failed to fetch" or "failed to checkout" or "authentication required" or "artifact unavailable") | stats count() as failures | filter failures:>3'
+            expr: 'app:="source-controller" ("failed to fetch" or "failed to checkout" or "authentication required" or "artifact unavailable") | stats count() as failures | filter failures:>3'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Flux source artifact failures'
-              description: '{{ $value }} source fetch/artifact failures.'
+              description: '{{ $value }} source fetch or artifact failures were logged.'
 
+      # -----------------------------------------------------------------------
+      # Kubernetes control plane
+      # -----------------------------------------------------------------------
       - name: kubernetes-control-plane
         type: vlogs
         interval: 2m
@@ -81,57 +96,52 @@ data:
           category: control-plane
         rules:
           - alert: KubeAPIServerFatal
-            expr: 'app:"kube-apiserver" (panic or fatal or "runtime error" or corrupt) | stats by (node) count() as hits | filter hits:>0'
-            labels: {severity: critical}
+            expr: 'app:="kube-apiserver" (level:in("fatal","panic") or "panic:" or "runtime error:" or "corrupt") | stats by (node) count() as hits | filter hits:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'kube-apiserver fatal error on {{ $labels.node }}'
-              description: '{{ $value }} fatal messages.'
+              description: '{{ $value }} fatal kube-apiserver messages on {{ $labels.node }}.'
 
           - alert: KubeAPIServerEtcdTimeoutBurst
-            expr: 'app:"kube-apiserver" ("etcdserver: request timed out" or "etcd request timed out" or "context deadline exceeded") | stats by (node) count() as failures | filter failures:>10'
+            expr: 'app:="kube-apiserver" ("etcdserver: request timed out" or "etcd request timed out" or ("etcd" and "context deadline exceeded")) | stats by (node) count() as failures | filter failures:>10'
             for: 5m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'kube-apiserver timing out against etcd'
-              description: '{{ $value }} timeout messages on {{ $labels.node }}.'
+              description: '{{ $value }} etcd timeout messages on {{ $labels.node }}.'
 
           - alert: KubeAPIServer5xxBurst
-            expr: 'app:"kube-apiserver" ("Internal Server Error" or "status=500" or "code=500" or "code\":500") | stats by (node) count() as failures | filter failures:>20'
+            expr: 'app:="kube-apiserver" ("Internal Server Error" or "status=500" or "code=500" or "code\":500") | stats by (node) count() as failures | filter failures:>20'
             for: 5m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'Kubernetes API 5xx burst'
-              description: '{{ $value }} possible API 5xx events.'
+              description: '{{ $value }} possible Kubernetes API 5xx events on {{ $labels.node }}.'
 
           - alert: KubeControllerManagerErrorBurst
-            expr: 'app:"kube-controller-manager" level:error | stats by (node) count() as errors | filter errors:>20'
+            expr: 'app:="kube-controller-manager" level:="error" | stats by (node) count() as errors | filter errors:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Controller manager error burst'
-              description: '{{ $value }} errors on {{ $labels.node }}.'
+              description: '{{ $value }} controller manager errors on {{ $labels.node }}.'
 
           - alert: KubernetesSchedulingFailureBurst
-            expr: '("FailedScheduling" or ("0/" and "nodes are available") or "failed to schedule pod") | stats by (k_namespace_name) count() as failures | filter failures:>20'
+            expr: '("FailedScheduling" or ("0/" and "nodes are available") or "failed to schedule pod") | stats by (k_namespace_name, k_pod_name) count() as failures | filter failures:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Kubernetes scheduling failure burst'
-              description: '{{ $value }} scheduling failures in {{ $labels.k_namespace_name }}.'
-      - name:
-        vlog:
-        interval: 1h
-        rules:
-          - alert: AuditFluxClusterRoleBindingChanged
-            expr: 'stream:"kubernetes-audit" objectRef.resource:="clusterrolebindings" verb:in("create","update","patch","delete") stage:="ResponseComplete" user.username:="system:serviceaccount:flux-system:flux-operator" | stats by (objectRef.name, verb) count() as changes | filter changes:>0'xw
-            labels:
-              severity: info
-            annotations:
-              summary: "Flux changed ClusterRoleBindings"
-              description: >
-                Flux performed {{ $labels.verb }} on
-                {{ $labels.objectRef_name }} ({{ $value }} audit events).
+              description: '{{ $value }} scheduling failures for {{ $labels.k_namespace_name }}/{{ $labels.k_pod_name }}.'
 
+      # -----------------------------------------------------------------------
+      # Critical and warning Kubernetes audit events
+      # -----------------------------------------------------------------------
       - name: kubernetes-audit
         type: vlogs
         interval: 2m
@@ -140,66 +150,110 @@ data:
           source: kubernetes-audit
         rules:
           - alert: AuditAnonymousRequestBurst
-            expr: 'stream:"kubernetes-audit" user.username:"system:anonymous" | stats count() as requests | filter requests:>20'
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" user.username:="system:anonymous" | stats count() as requests | filter requests:>20'
             for: 5m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Anonymous Kubernetes API request burst'
-              description: '{{ $value }} anonymous API requests.'
+              description: '{{ $value }} anonymous Kubernetes API requests.'
 
           - alert: AuditAuthorizationDeniedBurst
-            expr: 'stream:"kubernetes-audit" responseStatus.code:=403 | stats by (user.username) count() as denied | filter denied:>30'
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:=403 | stats by (user.username) count() as denied | filter denied:>30'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Kubernetes authorization denial burst'
-              description: '{{ $value }} denied requests.'
+              description: '{{ $value }} denied requests for {{ $labels.user_username }}.'
+
+          - alert: AuditSensitiveChangeDeniedBurst
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:>=400 objectRef.resource:in("clusterrolebindings","validatingwebhookconfigurations","mutatingwebhookconfigurations") verb:in("create","update","patch","delete") | stats by (user.username, objectRef.resource, objectRef.name, responseStatus.code) count() as attempts | filter attempts:>5'
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: 'Repeated denied sensitive Kubernetes changes'
+              description: '{{ $value }} denied attempts by {{ $labels.user_username }} against {{ $labels.objectRef_resource }}/{{ $labels.objectRef_name }} with status {{ $labels.responseStatus_code }}.'
 
           - alert: AuditClusterRoleBindingChanged
-            expr: 'stream:"kubernetes-audit" objectRef.resource:="clusterrolebindings" verb:in("create","update","patch","delete") stage:="ResponseComplete" -user.username:="system:serviceaccount:flux-system:flux-operator" | stats by (user.username, objectRef.name, verb) count() as changes | filter changes:>0'
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.resource:="clusterrolebindings" verb:in("create","update","patch","delete") -user.username:="system:serviceaccount:flux-system:flux-operator" | stats by (user.username, objectRef.name, verb) count() as changes | filter changes:>0'
             labels:
               severity: critical
             annotations:
-              summary: "ClusterRoleBinding changed"
-              description: >
-                {{ $labels.user_username }} performed {{ $labels.verb }} on ClusterRoleBinding {{ $labels.objectRef_name }}.
+              summary: 'ClusterRoleBinding changed'
+              description: '{{ $labels.user_username }} performed {{ $labels.verb }} on ClusterRoleBinding {{ $labels.objectRef_name }}.'
 
           - alert: AuditAdmissionWebhookChanged
-            expr: 'stream:"kubernetes-audit" objectRef.resource:in("validatingwebhookconfigurations","mutatingwebhookconfigurations") verb:in("create","update","patch","delete") | stats by (user.username, verb) count() as changes | filter changes:>0'
-            labels: {severity: critical}
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.resource:in("validatingwebhookconfigurations","mutatingwebhookconfigurations") verb:in("create","update","patch","delete") -user.username:="system:serviceaccount:cert-manager:cert-manager-cainjector" | stats by (user.username, objectRef.resource, objectRef.name, verb) count() as changes | filter changes:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'Admission webhook changed'
-              description: '{{ $labels.user_username }} performed {{ $labels.verb }}.'
+              description: '{{ $labels.user_username }} performed {{ $labels.verb }} on {{ $labels.objectRef_resource }}/{{ $labels.objectRef_name }}.'
 
           - alert: AuditExecInSensitiveNamespace
-            expr: 'stream:"kubernetes-audit" objectRef.subresource:"exec" objectRef.namespace:in("kube-system","flux-system","observability","network","longhorn-system") verb:"create" | stats by (user.username, objectRef.namespace, objectRef.name) count() as execs | filter execs:>0'
-            labels: {severity: warning}
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.subresource:="exec" objectRef.namespace:in("kube-system","flux-system","observability","network","longhorn-system") verb:="create" | stats by (user.username, objectRef.namespace, objectRef.name) count() as execs | filter execs:>0'
+            labels:
+              severity: warning
             annotations:
               summary: 'Pod exec in sensitive namespace'
-              description: '{{ $value }} exec event(s) in a sensitive namespace.'
+              description: '{{ $labels.user_username }} executed into {{ $labels.objectRef_namespace }}/{{ $labels.objectRef_name }} ({{ $value }} event(s)).'
 
           - alert: AuditSecretReadBurst
-            expr: 'stream:"kubernetes-audit" objectRef.resource:"secrets" verb:in("get","list") | stats by (user.username, objectRef.namespace) count() as reads | filter reads:>100'
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.resource:="secrets" verb:in("get","list","watch") | stats by (user.username, objectRef.namespace) count() as reads | filter reads:>100'
             for: 5m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Unusual Secret read burst'
-              description: '{{ $value }} Secret reads/lists.'
+              description: '{{ $value }} Secret reads, lists or watches by {{ $labels.user_username }} in namespace {{ $labels.objectRef_namespace }}.'
 
           - alert: AuditPrivilegedPodCreated
-            expr: 'stream:"kubernetes-audit" objectRef.resource:"pods" verb:"create" ("\"privileged\":true" or "\"privileged\": true") | stats by (user.username, objectRef.namespace) count() as creations | filter creations:>0'
-            labels: {severity: critical}
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.resource:="pods" verb:="create" ("\"privileged\":true" or "\"privileged\": true") | stats by (user.username, objectRef.namespace, objectRef.name) count() as creations | filter creations:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'Privileged Pod created'
-              description: '{{ $value }} privileged Pod creation(s).'
+              description: '{{ $labels.user_username }} created privileged Pod {{ $labels.objectRef_namespace }}/{{ $labels.objectRef_name }}.'
 
           - alert: AuditHostNamespacePodCreated
-            expr: 'stream:"kubernetes-audit" objectRef.resource:"pods" verb:"create" ("\"hostNetwork\":true" or "\"hostPID\":true" or "\"hostIPC\":true" or "\"hostNetwork\": true" or "\"hostPID\": true" or "\"hostIPC\": true") | stats by (user.username, objectRef.namespace) count() as creations | filter creations:>0'
-            labels: {severity: warning}
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.resource:="pods" verb:="create" ("\"hostNetwork\":true" or "\"hostPID\":true" or "\"hostIPC\":true" or "\"hostNetwork\": true" or "\"hostPID\": true" or "\"hostIPC\": true") | stats by (user.username, objectRef.namespace, objectRef.name) count() as creations | filter creations:>0'
+            labels:
+              severity: warning
             annotations:
               summary: 'Pod with host namespace access created'
-              description: '{{ $value }} host namespace Pod creation(s).'
+              description: '{{ $labels.user_username }} created Pod {{ $labels.objectRef_namespace }}/{{ $labels.objectRef_name }} with host namespace access.'
 
+      # -----------------------------------------------------------------------
+      # Expected audit changes summarized hourly
+      # -----------------------------------------------------------------------
+      - name: kubernetes-audit-expected-changes
+        type: vlogs
+        interval: 1h
+        labels:
+          category: security
+          source: kubernetes-audit
+        rules:
+          - alert: AuditFluxClusterRoleBindingChanged
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.resource:="clusterrolebindings" verb:in("create","update","patch","delete") user.username:="system:serviceaccount:flux-system:flux-operator" | stats by (objectRef.name, verb) count() as changes | filter changes:>0'
+            labels:
+              severity: info
+            annotations:
+              summary: 'Flux changed ClusterRoleBindings'
+              description: 'Flux performed {{ $labels.verb }} on ClusterRoleBinding {{ $labels.objectRef_name }} ({{ $value }} audit events).'
+
+          - alert: AuditCertManagerWebhookCAChanged
+            expr: 'stream:="kubernetes-audit" stage:="ResponseComplete" responseStatus.code:<400 objectRef.resource:in("validatingwebhookconfigurations","mutatingwebhookconfigurations") verb:in("update","patch") user.username:="system:serviceaccount:cert-manager:cert-manager-cainjector" | stats by (objectRef.resource, objectRef.name, verb) count() as changes | filter changes:>0'
+            labels:
+              severity: info
+            annotations:
+              summary: 'cert-manager updated a webhook CA'
+              description: 'cert-manager cainjector performed {{ $labels.verb }} on {{ $labels.objectRef_resource }}/{{ $labels.objectRef_name }} ({{ $value }} audit events).'
+
+      # -----------------------------------------------------------------------
+      # Talos and kernel
+      # -----------------------------------------------------------------------
       - name: talos-kernel
         type: vlogs
         interval: 2m
@@ -208,66 +262,77 @@ data:
           source: talos
         rules:
           - alert: TalosKernelPanic
-            expr: 'stream:"talos" service:"kernel" ("Kernel panic" or "kernel BUG" or "Oops:" or "general protection fault" or "soft lockup" or "hard LOCKUP") | stats by (node) count() as hits | filter hits:>0'
-            labels: {severity: critical}
+            expr: 'stream:="talos" service:="kernel" ("Kernel panic" or "kernel BUG" or "Oops:" or "general protection fault" or "soft lockup" or "hard LOCKUP") | stats by (node) count() as hits | filter hits:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'Kernel failure on {{ $labels.node }}'
-              description: '{{ $value }} panic/BUG/Oops/lockup events.'
+              description: '{{ $value }} kernel panic, BUG, Oops or lockup events on {{ $labels.node }}.'
 
           - alert: TalosKernelOOMBurst
-            expr: 'stream:"talos" service:"kernel" ("Out of memory" or "oom-kill" or "Killed process") | stats by (node) count() as kills | filter kills:>3'
+            expr: 'stream:="talos" service:="kernel" ("Out of memory" or "oom-kill" or "Killed process") | stats by (node) count() as kills | filter kills:>3'
             for: 5m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'Kernel OOM burst on {{ $labels.node }}'
-              description: '{{ $value }} OOM events.'
+              description: '{{ $value }} OOM events on {{ $labels.node }}.'
 
           - alert: TalosFilesystemReadOnly
-            expr: 'stream:"talos" service:"kernel" ("Remounting filesystem read-only" or "Read-only file system") | stats by (node) count() as hits | filter hits:>0'
-            labels: {severity: critical}
+            expr: 'stream:="talos" service:="kernel" ("Remounting filesystem read-only" or "Read-only file system") | stats by (node) count() as hits | filter hits:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'Filesystem read-only on {{ $labels.node }}'
-              description: '{{ $value }} read-only filesystem events.'
+              description: '{{ $value }} read-only filesystem events on {{ $labels.node }}.'
 
           - alert: TalosDiskIOFailure
-            expr: 'stream:"talos" service:"kernel" ("I/O error" or "Buffer I/O error" or "blk_update_request" or "EXT4-fs error" or "XFS metadata I/O error" or "nvme timeout") | stats by (node) count() as errors | filter errors:>0'
-            labels: {severity: critical}
+            expr: 'stream:="talos" service:="kernel" ("I/O error" or "Buffer I/O error" or "blk_update_request" or "EXT4-fs error" or "XFS metadata I/O error" or "nvme timeout") | stats by (node) count() as errors | filter errors:>0'
+            labels:
+              severity: critical
             annotations:
-              summary: 'Disk/filesystem I/O failure on {{ $labels.node }}'
-              description: '{{ $value }} storage I/O errors.'
+              summary: 'Disk or filesystem I/O failure on {{ $labels.node }}'
+              description: '{{ $value }} storage I/O errors on {{ $labels.node }}.'
 
           - alert: TalosServiceRestartLoop
-            expr: 'stream:"talos" service:in("machined","etcd","kubelet","cri","trustd") ("service exited" or "restarting service" or "failed to start") | stats by (node, service) count() as restarts | filter restarts:>3'
+            expr: 'stream:="talos" service:in("machined","etcd","kubelet","cri","trustd") ("service exited" or "restarting service" or "failed to start") | stats by (node, service) count() as restarts | filter restarts:>3'
             for: 10m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'Talos service {{ $labels.service }} restart loop'
-              description: '{{ $value }} restart/failure events on {{ $labels.node }}.'
+              description: '{{ $value }} restart or failure events for {{ $labels.service }} on {{ $labels.node }}.'
 
           - alert: TalosKubeletFailureBurst
-            expr: 'stream:"talos" service:"kubelet" (level:error or "PLEG is not healthy" or "container runtime is down") | stats by (node) count() as errors | filter errors:>10'
+            expr: 'stream:="talos" service:="kubelet" (level:="error" or "PLEG is not healthy" or "container runtime is down") | stats by (node) count() as errors | filter errors:>10'
             for: 10m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'kubelet failure burst on {{ $labels.node }}'
-              description: '{{ $value }} serious kubelet errors.'
+              description: '{{ $value }} serious kubelet errors on {{ $labels.node }}.'
 
           - alert: TalosCRIFailureBurst
-            expr: 'stream:"talos" service:"cri" ("failed" or unavailable or "connection refused" or "context deadline exceeded") | stats by (node) count() as errors | filter errors:>20'
+            expr: 'stream:="talos" service:="cri" ("container runtime is down" or "connection refused" or "context deadline exceeded" or "failed to start containerd" or "failed to connect to containerd") | stats by (node) count() as errors | filter errors:>10'
             for: 10m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'Container runtime failures on {{ $labels.node }}'
-              description: '{{ $value }} CRI failures.'
+              description: '{{ $value }} CRI or container runtime failures on {{ $labels.node }}.'
 
           - alert: TalosDNSResolveCacheFailureBurst
-            expr: 'stream:"talos" service:"dns-resolve-cache" (level:error or SERVFAIL or timeout or "connection refused") | stats by (node) count() as failures | filter failures:>50'
+            expr: 'stream:="talos" service:="dns-resolve-cache" (level:="error" or "SERVFAIL" or "i/o timeout" or "connection refused") | stats by (node) count() as failures | filter failures:>50'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Talos DNS resolver failure burst'
-              description: '{{ $value }} DNS failures on {{ $labels.node }}.'
+              description: '{{ $value }} DNS resolver failures on {{ $labels.node }}.'
 
+      # -----------------------------------------------------------------------
+      # etcd
+      # -----------------------------------------------------------------------
       - name: etcd
         type: vlogs
         interval: 1m
@@ -276,36 +341,43 @@ data:
           source: etcd
         rules:
           - alert: EtcdCorruptionOrWALFailure
-            expr: 'service:"etcd" (corrupt or "wal: crc mismatch" or "failed to read WAL" or "failed to write WAL" or "database space exceeded" or NOSPACE) | stats by (node) count() as failures | filter failures:>0'
-            labels: {severity: critical}
+            expr: 'service:="etcd" ("corrupt" or "wal: crc mismatch" or "failed to read WAL" or "failed to write WAL" or "database space exceeded" or "NOSPACE") | stats by (node) count() as failures | filter failures:>0'
+            labels:
+              severity: critical
             annotations:
-              summary: 'etcd integrity/storage failure'
+              summary: 'etcd integrity or storage failure'
               description: '{{ $value }} critical etcd storage events on {{ $labels.node }}.'
 
           - alert: EtcdLeaderChangeBurst
-            expr: 'service:"etcd" ("leader changed" or "lost leader" or "elected leader" or "became leader") | stats by (node) count() as changes | filter changes:>3'
+            expr: 'service:="etcd" ("leader changed" or "lost leader" or "elected leader" or "became leader") | stats by (node) count() as changes | filter changes:>3'
             for: 5m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'Repeated etcd leader changes'
-              description: '{{ $value }} leader changes on {{ $labels.node }}.'
+              description: '{{ $value }} etcd leader changes on {{ $labels.node }}.'
 
           - alert: EtcdSlowStorageBurst
-            expr: 'service:"etcd" ("apply request took too long" or "slow fdatasync" or "waiting for ReadIndex response took too long" or "request timed out") | stats by (node) count() as slow | filter slow:>10'
+            expr: 'service:="etcd" ("apply request took too long" or "slow fdatasync" or "waiting for ReadIndex response took too long" or "request timed out") | stats by (node) count() as slow | filter slow:>10'
             for: 5m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
-              summary: 'etcd slow storage/request processing'
-              description: '{{ $value }} slow-request events on {{ $labels.node }}.'
+              summary: 'etcd slow storage or request processing'
+              description: '{{ $value }} slow etcd request events on {{ $labels.node }}.'
 
           - alert: EtcdPeerFailureBurst
-            expr: 'service:"etcd" (rafthttp and (failed or unhealthy or timeout or "connection refused")) | stats by (node) count() as failures | filter failures:>20'
+            expr: 'service:="etcd" "rafthttp" ("failed" or "unhealthy" or "timeout" or "connection refused") | stats by (node) count() as failures | filter failures:>20'
             for: 5m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'etcd peer communication failures'
               description: '{{ $value }} raft peer failures on {{ $labels.node }}.'
 
+      # -----------------------------------------------------------------------
+      # Cilium and Hubble
+      # -----------------------------------------------------------------------
       - name: cilium-hubble
         type: vlogs
         interval: 5m
@@ -314,51 +386,51 @@ data:
           source: cilium
         rules:
           - alert: CiliumAgentFatal
-            expr: 'app:"cilium-agent" (panic or fatal or "failed to load BPF" or "datapath regeneration failed" or "unable to regenerate endpoint") | stats by (node, k_pod_name) count() as failures | filter failures:>0'
-            labels: {severity: critical}
+            expr: 'app:="cilium-agent" (level:in("fatal","panic") or "failed to load BPF" or "datapath regeneration failed" or "unable to regenerate endpoint") | stats by (node, k_pod_name) count() as failures | filter failures:>0'
+            labels:
+              severity: critical
             annotations:
-              summary: 'Cilium fatal/datapath failure'
-              description: '{{ $value }} critical failures on {{ $labels.node }}.'
+              summary: 'Cilium fatal or datapath failure'
+              description: '{{ $value }} critical Cilium failures on {{ $labels.node }} in {{ $labels.k_pod_name }}.'
 
           - alert: CiliumAgentErrorBurst
-            expr: 'app:"cilium-agent" level:error | stats by (node, k_pod_name) count() as errors | filter errors:>30'
+            expr: 'app:="cilium-agent" level:="error" | stats by (node, k_pod_name) count() as errors | filter errors:>30'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Cilium agent error burst'
-              description: '{{ $value }} errors on {{ $labels.node }}.'
+              description: '{{ $value }} Cilium agent errors on {{ $labels.node }} in {{ $labels.k_pod_name }}.'
 
           - alert: CiliumOperatorErrorBurst
-            expr: 'app:"cilium-operator" level:error | stats by (k_pod_name) count() as errors | filter errors:>20'
+            expr: 'app:="cilium-operator" level:="error" | stats by (k_pod_name) count() as errors | filter errors:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Cilium operator error burst'
-              description: '{{ $value }} operator errors.'
+              description: '{{ $value }} Cilium operator errors in {{ $labels.k_pod_name }}.'
 
           - alert: HubbleLostEvents
-            expr: '(stream:"hubble" or app:"hubble-relay" or app:"cilium-agent") ("lost events" or "events lost" or "PERF_EVENT_RING_BUFFER") | stats by (node, node_name) count() as losses | filter losses:>0'
-            labels: {severity: critical}
+            expr: '(stream:="hubble" or app:="hubble-relay" or app:="cilium-agent") ("lost events" or "events lost" or "PERF_EVENT_RING_BUFFER") | stats by (node, node_name) count() as losses | filter losses:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'Hubble lost flow events'
-              description: '{{ $value }} lost-event messages.'
-
-          - alert: HubbleVerdictBurst
-            expr: '(stream:"hubble" or app:"hubble-relay" or app:"cilium-agent") verdict:* | stats by (verdict) count() as verdicts | filter verdicts:>1000'
-            for: 10m
-            labels: {severity: warning}
-            annotations:
-              summary: 'Large Hubble verdict burst'
-              description: '{{ $value }} Hubble flow verdicts with verdict {{ $labels.verdict }} were observed in the evaluation window.'
+              description: '{{ $value }} lost Hubble events on {{ $labels.node }}{{ $labels.node_name }}.'
 
           - alert: HubbleDroppedVerdictBurst
-            expr: '(stream:"hubble" or app:"hubble-relay" or app:"cilium-agent") verdict:"DROPPED" | stats count() as dropped | filter dropped:>250'
+            expr: 'stream:="hubble" verdict:="DROPPED" | stats by (drop_reason_desc, destination_namespace, destination_workload) count() as dropped | filter dropped:>250'
             for: 10m
-            labels: {severity: critical}
+            labels:
+              severity: warning
             annotations:
-              summary: 'Large Hubble DROPPED verdict burst'
-              description: '{{ $value }} Hubble flows were dropped in the evaluation window.'
+              summary: 'Large Hubble dropped-flow burst'
+              description: '{{ $value }} flows dropped for {{ $labels.destination_namespace }}/{{ $labels.destination_workload }}. Reason: {{ $labels.drop_reason_desc }}.'
 
+      # -----------------------------------------------------------------------
+      # DNS and gateways
+      # -----------------------------------------------------------------------
       - name: dns-gateway
         type: vlogs
         interval: 5m
@@ -366,45 +438,53 @@ data:
           category: network
         rules:
           - alert: CoreDNSFailureBurst
-            expr: 'app:"coredns" (level:error or SERVFAIL or "plugin/errors" or "i/o timeout" or "connection refused") | stats by (k_pod_name) count() as failures | filter failures:>50'
+            expr: 'app:="coredns" (level:="error" or "SERVFAIL" or "plugin/errors" or "i/o timeout" or "connection refused") | stats by (k_pod_name) count() as failures | filter failures:>50'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'CoreDNS failure burst'
-              description: '{{ $value }} failures from {{ $labels.k_pod_name }}.'
+              description: '{{ $value }} DNS failures from {{ $labels.k_pod_name }}.'
 
           - alert: EnvoyUpstreamFailureBurst
-            expr: 'app:"envoy" ("upstream connect error" or "no healthy upstream" or "upstream reset" or "connection termination") | stats by (k_pod_name) count() as failures | filter failures:>100'
+            expr: 'app:="envoy" ("upstream connect error" or "no healthy upstream" or "upstream reset" or "connection termination") | stats by (k_pod_name) count() as failures | filter failures:>100'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Envoy upstream failure burst'
-              description: '{{ $value }} upstream failures.'
+              description: '{{ $value }} upstream failures from {{ $labels.k_pod_name }}.'
 
           - alert: ExternalDNSFailureBurst
-            expr: 'app:"external-dns" (level:error or "failed to" or "provider error" or "rate limit") | stats by (k_pod_name) count() as failures | filter failures:>10'
+            expr: 'app:="external-dns" (level:="error" or "failed to update" or "provider error" or "rate limit") | stats by (k_pod_name) count() as failures | filter failures:>10'
             for: 15m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'ExternalDNS failures'
-              description: '{{ $value }} provider/update failures.'
+              description: '{{ $value }} provider or update failures in {{ $labels.k_pod_name }}.'
 
           - alert: CloudflareTunnelFailureBurst
-            expr: 'app:"cloudflare-tunnel" (level:error or "connection terminated" or "failed to connect" or "register tunnel error") | stats by (k_pod_name) count() as failures | filter failures:>20'
+            expr: 'app:="cloudflare-tunnel" (level:="error" or "connection terminated" or "failed to connect" or "register tunnel error") | stats by (k_pod_name) count() as failures | filter failures:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Cloudflare Tunnel failure burst'
-              description: '{{ $value }} tunnel failures.'
+              description: '{{ $value }} Cloudflare Tunnel failures in {{ $labels.k_pod_name }}.'
 
           - alert: K8sGatewayFailureBurst
-            expr: 'app:in("k8s-gateway","gateway-helm") (level:error or SERVFAIL or timeout or failed) | stats by (app, k_pod_name) count() as failures | filter failures:>30'
+            expr: 'app:in("k8s-gateway","gateway-helm") (level:="error" or "SERVFAIL" or "i/o timeout" or "connection refused" or "upstream unavailable") | stats by (app, k_pod_name) count() as failures | filter failures:>30'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Gateway component failure burst'
-              description: '{{ $value }} failures from {{ $labels.app }}.'
+              description: '{{ $value }} failures from {{ $labels.app }} in {{ $labels.k_pod_name }}.'
 
+      # -----------------------------------------------------------------------
+      # Storage workloads
+      # -----------------------------------------------------------------------
       - name: storage-workloads
         type: vlogs
         interval: 5m
@@ -412,28 +492,34 @@ data:
           category: storage
         rules:
           - alert: LonghornCriticalFailure
-            expr: 'app:"longhorn" (panic or fatal or "replica failed" or "volume faulted" or "all replicas are failed" or "failed to attach" or "failed to mount") | stats by (k_pod_name) count() as failures | filter failures:>0'
-            labels: {severity: critical}
+            expr: 'app:="longhorn" (level:in("fatal","panic") or "replica failed" or "volume faulted" or "all replicas are failed" or "failed to attach" or "failed to mount") | stats by (k_pod_name) count() as failures | filter failures:>0'
+            labels:
+              severity: critical
             annotations:
               summary: 'Longhorn critical failure'
-              description: '{{ $value }} critical storage events.'
+              description: '{{ $value }} critical Longhorn events in {{ $labels.k_pod_name }}.'
 
           - alert: LonghornErrorBurst
-            expr: 'app:"longhorn" level:error | stats by (k_pod_name) count() as errors | filter errors:>20'
+            expr: 'app:="longhorn" level:="error" | stats by (k_pod_name) count() as errors | filter errors:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Longhorn error burst'
-              description: '{{ $value }} Longhorn errors.'
+              description: '{{ $value }} Longhorn errors in {{ $labels.k_pod_name }}.'
 
           - alert: CSISnapshotterFailureBurst
-            expr: 'app:"csi-snapshotter" (level:error or "failed to create snapshot" or "failed to delete snapshot") | stats by (k_pod_name) count() as failures | filter failures:>10'
+            expr: 'app:="csi-snapshotter" (level:="error" or "failed to create snapshot" or "failed to delete snapshot") | stats by (k_pod_name) count() as failures | filter failures:>10'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'CSI snapshotter failures'
-              description: '{{ $value }} snapshot failures.'
+              description: '{{ $value }} snapshot failures in {{ $labels.k_pod_name }}.'
 
+      # -----------------------------------------------------------------------
+      # Observability stack
+      # -----------------------------------------------------------------------
       - name: observability-stack
         type: vlogs
         interval: 5m
@@ -441,61 +527,71 @@ data:
           category: observability
         rules:
           - alert: PrometheusErrorBurst
-            expr: 'app:"prometheus" (level:error or "WAL corruption" or "compaction failed" or "remote write failed") | stats by (k_pod_name) count() as errors | filter errors:>20'
+            expr: 'app:="prometheus" (level:="error" or "WAL corruption" or "compaction failed" or "remote write failed") | stats by (k_pod_name) count() as errors | filter errors:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Prometheus error burst'
-              description: '{{ $value }} Prometheus failures.'
+              description: '{{ $value }} Prometheus failures in {{ $labels.k_pod_name }}.'
 
           - alert: PrometheusOperatorErrorBurst
-            expr: 'app:"kube-prometheus-stack-prometheus-operator" level:error | stats by (k_pod_name) count() as errors | filter errors:>20'
+            expr: 'app:="kube-prometheus-stack-prometheus-operator" level:="error" | stats by (k_pod_name) count() as errors | filter errors:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Prometheus Operator error burst'
-              description: '{{ $value }} operator errors.'
+              description: '{{ $value }} Prometheus Operator errors in {{ $labels.k_pod_name }}.'
 
           - alert: GrafanaErrorBurst
-            expr: 'app:"grafana" level:error | stats by (k_pod_name) count() as errors | filter errors:>30'
+            expr: 'app:="grafana" level:="error" | stats by (k_pod_name) count() as errors | filter errors:>30'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Grafana error burst'
-              description: '{{ $value }} Grafana errors.'
+              description: '{{ $value }} Grafana errors in {{ $labels.k_pod_name }}.'
 
           - alert: GrafanaOperatorErrorBurst
-            expr: 'app:"grafana-operator" level:error | stats by (k_pod_name) count() as errors | filter errors:>20'
+            expr: 'app:="grafana-operator" level:="error" | stats by (k_pod_name) count() as errors | filter errors:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'Grafana Operator error burst'
-              description: '{{ $value }} operator errors.'
+              description: '{{ $value }} Grafana Operator errors in {{ $labels.k_pod_name }}.'
 
           - alert: VictoriaMetricsAlertFailureBurst
-            expr: 'app:"victoria-metrics-alert" (level:error or level:fatal or "failed to execute query" or "failed to send alert") | stats by (k_pod_name) count() as errors | filter errors:>5'
+            expr: 'app:="victoria-metrics-alert" (level:in("error","fatal") or "failed to execute query" or "failed to send alert") | stats by (k_pod_name) count() as errors | filter errors:>5'
             for: 5m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
-              summary: 'vmalert execution/notification failures'
-              description: '{{ $value }} vmalert failures.'
+              summary: 'vmalert execution or notification failures'
+              description: '{{ $value }} vmalert failures in {{ $labels.k_pod_name }}.'
 
           - alert: VictoriaLogsFailureBurst
-            expr: 'app:"victoria-logs-single" (level:error or level:fatal or "cannot ingest" or "too many open files" or "no space left") | stats by (k_pod_name) count() as errors | filter errors:>5'
+            expr: 'app:="victoria-logs-single" (level:in("error","fatal") or "cannot ingest" or "too many open files" or "no space left") | stats by (k_pod_name) count() as errors | filter errors:>5'
             for: 5m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
-              summary: 'VictoriaLogs ingestion/storage failures'
-              description: '{{ $value }} VictoriaLogs failures.'
+              summary: 'VictoriaLogs ingestion or storage failures'
+              description: '{{ $value }} VictoriaLogs failures in {{ $labels.k_pod_name }}.'
 
           - alert: AlertmanagerNotificationFailureBurst
-            expr: 'app:"alertmanager" ("Notify for alerts failed" or "notify retry canceled" or level:error) | stats by (k_pod_name) count() as failures | filter failures:>5'
+            expr: 'app:="alertmanager" ("Notify for alerts failed" or "notify retry canceled" or level:="error") | stats by (k_pod_name) count() as failures | filter failures:>5'
             for: 10m
-            labels: {severity: critical}
+            labels:
+              severity: critical
             annotations:
               summary: 'Alertmanager notification failures'
-              description: '{{ $value }} notification failures.'
+              description: '{{ $value }} notification failures in {{ $labels.k_pod_name }}.'
 
+      # -----------------------------------------------------------------------
+      # Platform controllers
+      # -----------------------------------------------------------------------
       - name: platform-controllers
         type: vlogs
         interval: 5m
@@ -503,33 +599,37 @@ data:
           category: platform
         rules:
           - alert: CertManagerFailureBurst
-            expr: 'app:"cert-manager" (level:error or "certificate request has failed" or "failed to issue certificate") | stats by (k_pod_name) count() as failures | filter failures:>10'
+            expr: 'app:="cert-manager" (level:="error" or "certificate request has failed" or "failed to issue certificate") | stats by (k_pod_name) count() as failures | filter failures:>10'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'cert-manager failures'
-              description: '{{ $value }} certificate issuance/controller failures.'
+              description: '{{ $value }} certificate issuance or controller failures in {{ $labels.k_pod_name }}.'
 
           - alert: SpegelFailureBurst
-            expr: 'app:"spegel" (level:error or "failed to pull" or (registry and error)) | stats by (k_pod_name) count() as failures | filter failures:>20'
+            expr: 'app:="spegel" (level:="error" or "failed to pull" or ("registry" and "error")) | stats by (k_pod_name) count() as failures | filter failures:>20'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
-              summary: 'Spegel registry/mirror failures'
-              description: '{{ $value }} Spegel failures.'
+              summary: 'Spegel registry or mirror failures'
+              description: '{{ $value }} Spegel failures in {{ $labels.k_pod_name }}.'
 
           - alert: CainjectorErrorBurst
-            expr: 'app:"cainjector" level:error | stats by (k_pod_name) count() as errors | filter errors:>10'
+            expr: 'app:="cainjector" level:="error" | stats by (k_pod_name) count() as errors | filter errors:>10'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'CA injector error burst'
-              description: '{{ $value }} cainjector errors.'
+              description: '{{ $value }} cainjector errors in {{ $labels.k_pod_name }}.'
 
           - alert: ControllerRuntimeErrorBurst
-            expr: 'service:"controller-runtime" level:error | stats by (node) count() as errors | filter errors:>30'
+            expr: 'service:="controller-runtime" level:="error" | stats by (node) count() as errors | filter errors:>30'
             for: 10m
-            labels: {severity: warning}
+            labels:
+              severity: warning
             annotations:
               summary: 'controller-runtime error burst'
               description: '{{ $value }} controller-runtime errors on {{ $labels.node }}.'
