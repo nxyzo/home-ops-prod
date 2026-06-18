@@ -118,6 +118,19 @@ data:
             annotations:
               summary: 'Kubernetes scheduling failure burst'
               description: '{{ $value }} scheduling failures in {{ $labels.k_namespace_name }}.'
+      - name:
+        vlog:
+        interval: 1h
+        rules:
+          - alert: AuditFluxClusterRoleBindingChanged
+            expr: 'stream:"kubernetes-audit" objectRef.resource:="clusterrolebindings" verb:in("create","update","patch","delete") stage:="ResponseComplete" user.username:="system:serviceaccount:flux-system:flux-operator" | stats by (objectRef.name, verb) count() as changes | filter changes:>0'xw
+            labels:
+              severity: info
+            annotations:
+              summary: "Flux changed ClusterRoleBindings"
+              description: >
+                Flux performed {{ $labels.verb }} on
+                {{ $labels.objectRef_name }} ({{ $value }} audit events).
 
       - name: kubernetes-audit
         type: vlogs
@@ -143,11 +156,13 @@ data:
               description: '{{ $value }} denied requests.'
 
           - alert: AuditClusterRoleBindingChanged
-            expr: 'stream:"kubernetes-audit" objectRef.resource:"clusterrolebindings" verb:in("create","update","patch","delete") | stats by (user.username, verb) count() as changes | filter changes:>0'
-            labels: {severity: critical}
+            expr: 'stream:"kubernetes-audit" objectRef.resource:="clusterrolebindings" verb:in("create","update","patch","delete") stage:="ResponseComplete" -user.username:="system:serviceaccount:flux-system:flux-operator" | stats by (user.username, objectRef.name, verb) count() as changes | filter changes:>0'
+            labels:
+              severity: critical
             annotations:
-              summary: 'ClusterRoleBinding changed'
-              description: '{{ $labels.user_username }} performed {{ $labels.verb }}.'
+              summary: "ClusterRoleBinding changed"
+              description: >
+                {{ $labels.user_username }} performed {{ $labels.verb }} on ClusterRoleBinding {{ $labels.objectRef_name }}.
 
           - alert: AuditAdmissionWebhookChanged
             expr: 'stream:"kubernetes-audit" objectRef.resource:in("validatingwebhookconfigurations","mutatingwebhookconfigurations") verb:in("create","update","patch","delete") | stats by (user.username, verb) count() as changes | filter changes:>0'
