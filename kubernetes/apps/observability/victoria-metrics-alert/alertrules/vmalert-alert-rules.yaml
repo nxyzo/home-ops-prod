@@ -420,13 +420,13 @@ data:
               description: '{{ $value }} lost Hubble events on {{ $labels.node }}{{ $labels.node_name }}.'
 
           - alert: HubbleDroppedVerdictBurst
-            expr: 'stream:="hubble" verdict:="DROPPED" | stats by (drop_reason_desc, destination_namespace, destination_workload) count() as dropped | filter dropped:>250'
-            for: 10m
+            expr: 'stream:="hubble" verdict:="DROPPED" | stats by (drop_reason_desc, destination_namespace, destination_pod) count() as dropped | filter dropped:>250'
+            for: 5m
             labels:
               severity: warning
             annotations:
               summary: 'Large Hubble dropped-flow burst'
-              description: '{{ $value }} flows dropped for {{ $labels.destination_namespace }}/{{ $labels.destination_workload }}. Reason: {{ $labels.drop_reason_desc }}.'
+              description: '{{ $value }} flows dropped for {{ $labels.destination_namespace }}/{{ $labels.destination_pod }}. Reason: {{ $labels.drop_reason_desc }}.'
 
       # -----------------------------------------------------------------------
       # DNS and gateways
