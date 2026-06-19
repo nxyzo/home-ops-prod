@@ -83,6 +83,10 @@ spec:
   interval: 1h
   path: ./kubernetes/apps/cert-manager/cert-manager/networkpolicys
   prune: true
+  dependsOn:
+    - name: cert-manager
+    - name: cilium
+      namespace: kube-system
   sourceRef:
     kind: GitRepository
     name: flux-system
