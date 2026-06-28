@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: kustomize-controller
+      app: kustomize-controller
   policyTypes:
     - Ingress
   ingress:
@@ -16,7 +16,8 @@ spec:
               kubernetes.io/metadata.name: observability
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: prometheus
+              name: prometheus
+              instance: kube-prometheus-stack
       ports:
         - protocol: TCP
           port: 8080
