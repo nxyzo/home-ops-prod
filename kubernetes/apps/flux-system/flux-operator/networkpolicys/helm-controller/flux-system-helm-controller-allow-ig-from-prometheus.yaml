@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/instance: helm-controller
+      app.kubernetes.io/name: helm-controller
   policyTypes:
     - Ingress
   ingress:

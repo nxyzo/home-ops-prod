@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/instance: notification-controller
+      app.kubernetes.io/name: notification-controller
   policyTypes:
     - Ingress
   ingress:

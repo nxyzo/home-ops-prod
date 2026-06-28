@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/instance: kustomize-controller
+      app.kubernetes.io/name: kustomize-controller
   policyTypes:
     - Ingress
   ingress:
