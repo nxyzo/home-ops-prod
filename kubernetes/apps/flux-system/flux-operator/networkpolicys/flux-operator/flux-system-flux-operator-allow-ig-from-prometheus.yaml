@@ -6,17 +6,17 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: flux-operator
+      name: flux-operator
   policyTypes:
     - Ingress
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: observability
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: observability
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: prometheus
       ports:
         - protocol: TCP
           port: 8080
