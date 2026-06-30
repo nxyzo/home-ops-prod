@@ -13,8 +13,8 @@ spec:
     - from:
       - namespaceSelector:
           matchLabels:
-            namespace: observability
-        podSelector:
+            kubernetes.io/metadata.name: observability
+      - podSelector:
           matchLabels:
             app.kubernetes.io/name: prometheus
       ports:
