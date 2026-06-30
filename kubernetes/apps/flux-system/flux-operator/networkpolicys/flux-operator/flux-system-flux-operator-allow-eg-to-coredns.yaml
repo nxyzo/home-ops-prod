@@ -2,12 +2,12 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: flux-system-source-controller-allow-eg-to-coredns
+  name: flux-system-flux-operator-allow-eg-to-coredns
   namespace: flux-system
 spec:
   podSelector:
     matchLabels:
-      app: source-controller
+      app.kubernetes.io/name: flux-operator
   policyTypes:
     - Egress
   egress:
