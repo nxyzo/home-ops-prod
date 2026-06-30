@@ -11,13 +11,12 @@ spec:
     - Ingress
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: observability
-          podSelector:
-            matchLabels:
-              name: prometheus
-              instance: kube-prometheus-stack
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: observability
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: prometheus
       ports:
-        - protocol: TCP
-          port: 8080
+      - protocol: TCP
+        port: 8080
