@@ -12,3 +12,4 @@ resources:
   - ./flux-system-notification-controller-allow-ig-from-kustomize-controller.yaml
   - ./flux-system-notification-controller-allow-ig-from-prometheus.yaml
   - ./flux-system-notification-controller-allow-eg-to-alertmanager.yaml
+  - ./flux-system-notification-controller-allow-ig-from-helm-controller.yaml
