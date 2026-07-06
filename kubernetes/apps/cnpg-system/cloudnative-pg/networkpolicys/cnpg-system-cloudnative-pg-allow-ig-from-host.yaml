@@ -1,0 +1,16 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: cnpg-system-cloudnative-pg-allow-ig-from-host
+  namespace: cnpg-system
+spec:
+  endpointSelector:
+    matchLabels:
+      name: cloudnative-pg
+  ingress:
+    - fromEntities:
+        - host
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "9443"

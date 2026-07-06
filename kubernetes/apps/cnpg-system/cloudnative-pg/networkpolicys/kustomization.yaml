@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: cnpg-system
+
+resources:
+  - ./cnpg-system-cloudnative-operator-allow-ig-from-prometheus
+  - ./cnpg-system-cloudnative-pg-allow-eg-to-k8s-api.yaml
+  - ./cnpg-system-cloudnative-pg-allow-ig-from-host.yaml
+  - ./cnpg-system-cloudnative-operator-allow-eg-to-database-ns.yaml

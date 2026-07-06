@@ -1,0 +1,16 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: cnpg-system-cloudnative-pg-allow-eg-to-k8s-api
+  namespace: cnpg-system
+spec:
+  endpointSelector:
+    matchLabels:
+      name: cloudnative-pg
+  egress:
+    - toEntities:
+        - kube-apiserver
+      toPorts:
+        - ports:
+            - port: "6443"
+              protocol: TCP
