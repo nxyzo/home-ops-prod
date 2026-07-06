@@ -9,13 +9,6 @@ spec:
   failoverDelay: 2
   instances: 3
 
-  monitoring:
-    enabled: true
-    podMonitor:
-      enabled: false
-    prometheusRule:
-      enabled: true
-
   storage:
     size: 3Gi
     storageClass: "longhorn"
