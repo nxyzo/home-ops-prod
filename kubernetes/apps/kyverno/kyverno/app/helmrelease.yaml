@@ -1,0 +1,83 @@
+---
+# yaml-language-server: $schema=https://lds-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app kyverno
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: *app
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    crds:
+      reportServer: true
+      migration:
+        enabled: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities: {drop: ["ALL"]}
+          privileged: false
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+        podResources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+    config:
+      excludeKyvernoNamespace: true
+      resourceFiltersExcludeNamespaces:
+        - kube-system
+        - longhorn-system
+        - network
+        - cert-manager
+        - cilium-secrets
+        - cnpg-system
+        - database
+        - flux-system
+        - kube-node-lease
+        - kube-public
+        - kyverno
+        - observability
+        - system-upgrade
+    admissionController:
+      replicas: 3
+      serviceMonitor:
+        enabled: true
+    backgroundController:
+      replicas: 3
+      serviceMonitor:
+        enabled: true
+    cleanupController:
+      replicas: 3
+      serviceMonitor:
+        enabled: true
+      rbac:
+        clusterRole:
+          extraResources:
+            - apiGroups:
+                - apps
+              resources:
+                - replicasets
+              verbs:
+                - get
+                - list
+                - watch
+                - delete
+    reportsController:
+      replicas: 3
+      serviceMonitor:
+        enabled: true
