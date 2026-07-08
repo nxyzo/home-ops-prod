@@ -46,4 +46,4 @@ spec:
   conditions:
     - name: is-bare-pod
       expression: "!has(object.metadata.ownerReferences) || size(object.metadata.ownerReferences) == 0"
-  schedule: "1 * * * * *"
+  schedule: "* * * * *"
