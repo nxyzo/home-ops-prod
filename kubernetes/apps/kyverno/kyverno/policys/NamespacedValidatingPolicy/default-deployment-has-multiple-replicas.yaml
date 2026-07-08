@@ -15,7 +15,7 @@ metadata:
       validates that Deployments have more than one replica.
 spec:
   validationActions:
-    - Audit
+    - enforce
   evaluation:
     background:
       enabled: true
