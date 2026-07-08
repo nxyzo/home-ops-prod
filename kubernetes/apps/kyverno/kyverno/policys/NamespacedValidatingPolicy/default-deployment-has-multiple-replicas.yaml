@@ -1,7 +1,7 @@
 apiVersion: policies.kyverno.io/v1
 kind: ValidatingPolicy
 metadata:
-  name: default-deployment-has-multiple-replicas
+  name: deployment-has-multiple-replicas
   annotations:
     policies.kyverno.io/title: Require Multiple Replicas in ValidatingPolicy
     policies.kyverno.io/category: Sample in Vpol
@@ -15,7 +15,7 @@ metadata:
       validates that Deployments have more than one replica.
 spec:
   validationActions:
-    - enforce
+    - Deny
   evaluation:
     background:
       enabled: true
@@ -49,5 +49,5 @@ spec:
         resources:
           - deployments
   validations:
-    - expression: object.spec.replicas > 1
-      message: Deployments should have more than one replica to ensure availability.
+    - expression: object.spec.replicas >= 2
+      message: Deployments müssen mindestens 2 Replicas haben.
