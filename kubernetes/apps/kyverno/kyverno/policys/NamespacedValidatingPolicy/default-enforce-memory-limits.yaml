@@ -1,8 +1,7 @@
 apiVersion: policies.kyverno.io/v1
-kind: NamespacedValidatingPolicy
+kind: ValidatingPolicy
 metadata:
-  name: default-enforce-memory-limits
-  namespace: default
+  name: enforce-memory-limits
   annotations:
     policies.kyverno.io/title: Enforce Memory Limits in ValidatingPolicy
     policies.kyverno.io/category: Other in Vpol
@@ -11,12 +10,30 @@ metadata:
     kyverno.io/kubernetes-version: "1.30"
     policies.kyverno.io/description: This policy ensures that all containers in a Pod define memory limits.
 spec:
+  validationActions:
+    - Deny
   evaluation:
     background:
       enabled: true
-  validationActions:
-    - Deny
   matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - kube-system
+            - longhorn-system
+            - network
+            - cert-manager
+            - cilium-secrets
+            - cnpg-system
+            - database
+            - flux-system
+            - kube-node-lease
+            - kube-public
+            - kyverno
+            - observability
+            - system-upgrade
     resourceRules:
       - apiGroups:
           - ""
@@ -27,6 +44,14 @@ spec:
           - UPDATE
         resources:
           - pods
+  variables:
+    - name: allContainers
+      expression: >-
+        object.spec.containers +
+        object.spec.?initContainers.orValue([]) +
+        object.spec.?ephemeralContainers.orValue([])
   validations:
-    - expression: "object.spec.containers.all(container, container.?resources.?limits.?memory.hasValue())"
-      message: "All containers must define memory limits."
+    - expression: >-
+        variables.allContainers.all(container,
+          container.?resources.?limits.?memory.hasValue())
+      message: All containers must define memory limits.

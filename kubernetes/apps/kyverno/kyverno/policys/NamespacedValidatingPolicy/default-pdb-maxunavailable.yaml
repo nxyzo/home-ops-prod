@@ -1,15 +1,16 @@
 apiVersion: policies.kyverno.io/v1
-kind: NamespacedValidatingPolicy
+kind: ValidatingPolicy
 metadata:
-  name: default-pdb-maxunavailable
-  namespace: default
+  name: pdb-maxunavailable
   annotations:
     policies.kyverno.io/title: PodDisruptionBudget maxUnavailable Non-Zero in ValidatingPolicy
     policies.kyverno.io/category: Other in Vpol
     kyverno.io/kyverno-version: 1.14.0
     kyverno.io/kubernetes-version: "1.30"
     policies.kyverno.io/subject: PodDisruptionBudget
-    policies.kyverno.io/description: A PodDisruptionBudget which sets its maxUnavailable value to zero prevents all voluntary evictions including Node drains which may impact maintenance tasks. This policy enforces that if a PodDisruptionBudget specifies the maxUnavailable field it must be greater than zero.
+    policies.kyverno.io/description: >-
+      This policy enforces that if a PodDisruptionBudget specifies the
+      maxUnavailable field it must be greater than zero.
 spec:
   validationActions:
     - Deny
@@ -17,6 +18,24 @@ spec:
     background:
       enabled: false
   matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - kube-system
+            - longhorn-system
+            - network
+            - cert-manager
+            - cilium-secrets
+            - cnpg-system
+            - database
+            - flux-system
+            - kube-node-lease
+            - kube-public
+            - kyverno
+            - observability
+            - system-upgrade
     resourceRules:
       - apiGroups:
           - policy

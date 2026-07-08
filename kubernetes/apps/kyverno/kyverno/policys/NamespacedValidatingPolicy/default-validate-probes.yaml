@@ -1,8 +1,7 @@
 apiVersion: policies.kyverno.io/v1
-kind: NamespacedValidatingPolicy
+kind: ValidatingPolicy
 metadata:
-  name: default-validate-probes
-  namespace: default
+  name: validate-probes
   annotations:
     policies.kyverno.io/title: Validate Probes in ValidatingPolicy
     policies.kyverno.io/category: Sample in Vpol
@@ -10,10 +9,11 @@ metadata:
     policies.kyverno.io/minversion: 1.14.0
     kyverno.io/kubernetes-version: "1.30"
     policies.kyverno.io/subject: Pod
-    policies.kyverno.io/description: Liveness and readiness probes accomplish different goals, and setting both to the same is an anti-pattern and often results in app problems in the future. This policy checks that liveness and readiness probes are not equal. Keep in mind that if both the  probes are not set, they are considered to be equal and hence fails the check.
+    policies.kyverno.io/description: >-
+      This policy checks that liveness and readiness probes are not equal.
 spec:
   validationActions:
-    - Audit
+    - Deny
   autogen:
     podControllers:
       controllers: []
@@ -21,18 +21,40 @@ spec:
     background:
       enabled: false
   matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - kube-system
+            - longhorn-system
+            - network
+            - cert-manager
+            - cilium-secrets
+            - cnpg-system
+            - database
+            - flux-system
+            - kube-node-lease
+            - kube-public
+            - kyverno
+            - observability
+            - system-upgrade
     resourceRules:
       - apiGroups:
           - apps
         apiVersions:
           - v1
+        operations:
+          - CREATE
+          - UPDATE
         resources:
           - deployments
           - daemonsets
           - statefulsets
-        operations:
-          - CREATE
-          - UPDATE
   validations:
-    - expression: "!object.spec.template.spec.containers.exists(container,  has(container.readinessProbe) && has(container.livenessProbe) && container.readinessProbe == container.livenessProbe)"
+    - expression: >-
+        !object.spec.template.spec.containers.exists(container,
+          has(container.readinessProbe) &&
+          has(container.livenessProbe) &&
+          container.readinessProbe == container.livenessProbe)
       message: Liveness and readiness probes cannot be the same.

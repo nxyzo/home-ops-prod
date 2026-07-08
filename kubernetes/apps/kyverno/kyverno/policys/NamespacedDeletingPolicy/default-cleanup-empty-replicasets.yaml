@@ -1,8 +1,7 @@
 apiVersion: policies.kyverno.io/v1
-kind: NamespacedDeletingPolicy
+kind: DeletingPolicy
 metadata:
-  name: default-cleanup-empty-replicasets
-  namespace: default
+  name: cleanup-empty-replicasets
   annotations:
     policies.kyverno.io/title: Cleanup Empty ReplicaSets
     policies.kyverno.io/category: Other
@@ -11,9 +10,30 @@ metadata:
     kyverno.io/kyverno-version: 1.15.0
     policies.kyverno.io/minversion: 1.15.0
     kyverno.io/kubernetes-version: 1.27+
-    policies.kyverno.io/description: "ReplicaSets serve as an intermediate controller for various Pod controllers like Deployments. When a new version of a Deployment is initiated, it generates a new ReplicaSet with the specified number of replicas and scales down the current one to zero. Consequently, numerous empty ReplicaSets may accumulate in the cluster, leading to clutter and potential false positives in policy reports if enabled. This cleanup policy is designed to remove empty ReplicaSets across the cluster. Note: This simplified version cleans up all empty ReplicaSets without a time delay. The schedule runs every minute, so very recent ReplicaSets should survive at least one cycle before deletion."
+    policies.kyverno.io/description: >-
+      ReplicaSets serve as an intermediate controller for various Pod controllers
+      like Deployments. This cleanup policy removes empty ReplicaSets across the
+      cluster only when they are older than 7 days.
 spec:
   matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - kube-system
+            - longhorn-system
+            - network
+            - cert-manager
+            - cilium-secrets
+            - cnpg-system
+            - database
+            - flux-system
+            - kube-node-lease
+            - kube-public
+            - kyverno
+            - observability
+            - system-upgrade
     resourceRules:
       - apiGroups:
           - apps
@@ -21,13 +41,9 @@ spec:
           - v1
         resources:
           - replicasets
-    namespaceSelector:
-      matchExpressions:
-        - key: kubernetes.io/metadata.name
-          operator: NotIn
-          values:
-            - kube-system
   conditions:
     - name: is-empty
       expression: object.spec.replicas == 0
+    - name: older-than-7-days
+      expression: time.now() - timestamp(object.metadata.creationTimestamp) > duration("168h")
   schedule: "0 0 * * 0"
