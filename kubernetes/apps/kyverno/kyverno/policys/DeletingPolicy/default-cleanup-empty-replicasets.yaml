@@ -16,24 +16,6 @@ metadata:
       cluster only when they are older than 7 days.
 spec:
   matchConstraints:
-    namespaceSelector:
-      matchExpressions:
-        - key: kubernetes.io/metadata.name
-          operator: NotIn
-          values:
-            - kube-system
-            - longhorn-system
-            - network
-            - cert-manager
-            - cilium-secrets
-            - cnpg-system
-            - database
-            - flux-system
-            - kube-node-lease
-            - kube-public
-            - kyverno
-            - observability
-            - system-upgrade
     resourceRules:
       - apiGroups:
           - apps
