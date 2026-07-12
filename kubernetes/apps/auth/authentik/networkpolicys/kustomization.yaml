@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: auth
+
+resources:
+  - ./auth-authentik-server-allow-eg-to-db-pg-authentik
+  - ./auth-authentik-server-allow-eg-to-coredns
+  - ./auth-authentik-server-allow-ig-from-host
+  - ./auth-authentik-server-allow-ig-from-prometheus
