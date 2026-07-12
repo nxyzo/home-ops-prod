@@ -1,0 +1,12 @@
+---
+# yaml-language-server: $schema=https://datreeio.github.io/CRDs-catalog/source.toolkit.fluxcd.io/ocirepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: authentik
+  namespace: auth
+spec:
+  interval: 1h
+  ref:
+    tag: 2026.2.3
+  url: oci://ghcr.io/goauthentik/helm-charts/authentik
