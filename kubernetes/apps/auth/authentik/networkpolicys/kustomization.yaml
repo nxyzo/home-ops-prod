@@ -9,3 +9,4 @@ resources:
   - ./auth-authentik-server-allow-eg-to-coredns.yaml
   - ./auth-authentik-server-allow-ig-from-host.yaml
   - ./auth-authentik-server-allow-ig-from-prometheus.yaml
+  - ./auth-authentik-server-allow-eg-to-world.yaml

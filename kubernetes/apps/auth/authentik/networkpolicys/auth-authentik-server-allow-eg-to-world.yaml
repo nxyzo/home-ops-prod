@@ -1,0 +1,16 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: auth-authentik-server-allow-eg-to-world
+  namespace: auth
+spec:
+  endpointSelector:
+      app.kubernetes.io/name: authentik
+      app.kubernetes.io/component: server
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "443"
