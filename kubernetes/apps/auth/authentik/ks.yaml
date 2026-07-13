@@ -21,10 +21,25 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: authentik-networkpolicys
+  name: authentik-networkpolicys-server
 spec:
   interval: 1h
-  path: ./kubernetes/apps/auth/authentik/networkpolicys
+  path: ./kubernetes/apps/auth/authentik/networkpolicys/server
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: auth
+  wait: false
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: authentik-networkpolicys-worker
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/auth/authentik/networkpolicys/worker
   prune: true
   sourceRef:
     kind: GitRepository
