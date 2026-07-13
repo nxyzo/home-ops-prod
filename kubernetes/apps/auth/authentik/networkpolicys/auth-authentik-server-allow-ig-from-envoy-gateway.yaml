@@ -12,14 +12,12 @@ spec:
     - Ingress
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: network
-          podSelector:
-            matchLabels:
-              name: envoy
-              component: proxy
-              managed-by: envoy-gateway
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: network
+        podSelector:
+          matchLabels:
+            helm.toolkit.fluxcd.io/name: envoy-gateway
       ports:
         - protocol: TCP
           port: 9000
