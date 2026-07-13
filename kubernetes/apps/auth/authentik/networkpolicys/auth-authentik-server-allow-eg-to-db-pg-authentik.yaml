@@ -6,8 +6,8 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      name: authentik
-      component: server
+      app.kubernetes.io/name: authentik
+      app.kubernetes.io/component: server
   policyTypes:
     - Egress
   egress:
