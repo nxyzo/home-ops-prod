@@ -8,5 +8,5 @@ resources:
   - ./auth-authentik-worker-allow-eg-to-db-pg-authentik.yaml
   - ./auth-authentik-worker-allow-eg-to-coredns.yaml
   - ./auth-authentik-worker-allow-ig-from-prometheus.yaml
-  #- ./auth-authentik-worker-allow-eg-to-world.yaml
+  - ./auth-authentik-worker-allow-eg-to-world.yaml
   - ./auth-authentik-worker-allow-ig-from-envoy-gateway.yaml
