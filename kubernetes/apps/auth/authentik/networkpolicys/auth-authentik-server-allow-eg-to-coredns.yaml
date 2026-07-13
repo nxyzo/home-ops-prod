@@ -6,8 +6,8 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      name: authentik
-      component: server
+      app.kubernetes.io/name: authentik
+      app.kubernetes.io/component: server
   policyTypes:
     - Egress
   egress:
@@ -17,7 +17,7 @@ spec:
               kubernetes.io/metadata.name: kube-system
           podSelector:
             matchLabels:
-              name: coredns
+              app.kubernetes.io/name: coredns
       ports:
         - protocol: UDP
           port: 53
