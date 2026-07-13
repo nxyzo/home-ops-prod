@@ -17,7 +17,7 @@ spec:
             kubernetes.io/metadata.name: network
         podSelector:
           matchLabels:
-            helm.toolkit.fluxcd.io/name: envoy-gateway
+            app.kubernetes.io/name: envoy
       ports:
         - protocol: TCP
           port: 9000
