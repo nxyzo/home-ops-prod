@@ -10,3 +10,4 @@ resources:
   - ./auth-authentik-worker-allow-ig-from-prometheus.yaml
   - ./auth-authentik-worker-allow-eg-to-world.yaml
   - ./auth-authentik-worker-allow-ig-from-envoy-gateway.yaml
+  - ./auth-authentik-worker-allow-eg-to-k8s-api.yaml
