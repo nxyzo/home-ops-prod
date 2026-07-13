@@ -1,13 +1,13 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: auth-authentik-server-allow-eg-to-world
+  name: auth-authentik-worker-allow-eg-to-world
   namespace: auth
 spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: authentik
-      app.kubernetes.io/component: server
+      app.kubernetes.io/component: worker
   egress:
     - toEntities:
         - world
