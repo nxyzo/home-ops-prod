@@ -5,6 +5,7 @@ metadata:
   namespace: auth
 spec:
   endpointSelector:
+    matchLabels:
       app.kubernetes.io/name: authentik
       app.kubernetes.io/component: server
   egress:
