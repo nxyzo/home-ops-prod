@@ -39,6 +39,7 @@ spec:
             - kyverno
             - observability
             - system-upgrade
+            - auth
     resourceRules:
       - apiGroups:
           - apps
