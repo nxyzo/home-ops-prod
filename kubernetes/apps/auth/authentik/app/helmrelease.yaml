@@ -208,6 +208,9 @@ spec:
           command:
             - ak
             - healthcheck
+        httpGet:
+          path: "{{ .Values.authentik.web.path }}-/health/ready/"
+          port: http
 
       startupProbe:
         failureThreshold: 60
