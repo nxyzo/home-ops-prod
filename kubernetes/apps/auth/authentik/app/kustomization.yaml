@@ -7,3 +7,4 @@ resources:
   - ./ocirepository.yaml
   - ./pg-authentik.secret.sops.yaml
   - ./secret.sops.yaml
+  - ./authentik-email-password.secret.sops.yaml

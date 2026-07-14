@@ -31,6 +31,14 @@ spec:
         fsGroup: 1000
 
     authentik:
+      email:
+          host: "smtp.migadu.com"
+          port: 465
+          username: admin@${SECRET_DOMAIN}
+          use_tls: true
+          use_ssl: false
+          timeout: 10
+          from: authentik@${SECRET_DOMAIN}
       postgresql:
         host: pg-authentik-rw.database.svc.cluster.local
         name: authentik
@@ -48,6 +56,11 @@ spec:
             secretKeyRef:
               name: authentik-secret
               key: secret_key
+        - name: AUTHENTIK_EMAIL__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: authentik-email-password
+              key: password
 
       volumes:
         - name: postgres-creds
