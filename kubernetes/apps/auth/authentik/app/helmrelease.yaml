@@ -157,6 +157,11 @@ spec:
             secretKeyRef:
               name: authentik-secret
               key: secret_key
+        - name: AUTHENTIK_EMAIL__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: authentik-email-password
+              key: password
 
       volumes:
         - name: postgres-creds
