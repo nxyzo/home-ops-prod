@@ -33,7 +33,7 @@ spec:
     authentik:
       email:
           host: "smtp.migadu.com"
-          port: 465
+          port: 587
           username: admin@${SECRET_DOMAIN}
           use_tls: true
           use_ssl: false
