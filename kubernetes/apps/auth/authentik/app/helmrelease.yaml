@@ -33,10 +33,10 @@ spec:
     authentik:
       email:
           host: "smtp.migadu.com"
-          port: 587
+          port: 465
           username: admin@${SECRET_DOMAIN}
-          use_tls: true
-          use_ssl: false
+          use_tls: false
+          use_ssl: true
           timeout: 10
           from: authentik@${SECRET_DOMAIN}
       postgresql:
