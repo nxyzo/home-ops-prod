@@ -24,10 +24,6 @@ spec:
     postgresql:
       enabled: false
 
-    prometheus:
-      rules:
-        enabled: true
-
     global:
       securityContext:
         runAsUser: 1000
@@ -250,4 +246,3 @@ spec:
     prometheus:
       rules:
         enabled: true
-        namespace: observability
