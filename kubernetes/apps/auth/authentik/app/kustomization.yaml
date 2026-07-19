@@ -9,3 +9,4 @@ resources:
   - ./secret.sops.yaml
   - ./authentik-email-password.secret.sops.yaml
   - ./authentik-media-files-s3.sops.yaml
+  - ./blueprints.yaml

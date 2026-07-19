@@ -194,10 +194,16 @@ spec:
         - name: postgres-creds
           secret:
             secretName: pg-authentik
+        - name: blueprints
+          configMap:
+            name: authentik-blueprints
 
       volumeMounts:
         - name: postgres-creds
           mountPath: /postgres-creds
+          readOnly: true
+        - name: blueprints
+          mountPath: /blueprints/custom
           readOnly: true
 
       securityContext:
