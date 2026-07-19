@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authentik-media-files-s3
+  namespace: auth
+type: Opaque
+stringData:
+  aws-access-key-id: ENC[AES256_GCM,data:P4IF+EgsNiaHDunHkLp1tSdQtAJwTER2xw==,iv:sbwR/+ShreMEgUhtXpNd9SJV88+G53saOLtGDzl+BuA=,tag:Cwx8Gxa215dZ/h27XYKtLw==,type:str]
+  aws-secret-access-key: ENC[AES256_GCM,data:mo2oX1adUVreVo3Tqh3lf9mp78Hj9mG1Is8ERAaVJg==,iv:J/Uavh1evtYEo5MmiSjrqzRfmav+kHlBHXioUpUrJ4A=,tag:3NecWn3ktXi+x69bDTVkFg==,type:str]
+sops:
+  age:
+    - enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA3UXF4UFpnY216aUE4ZE1Z
+        WWpYS0FUeTBHWGg2T0p3TzRWN2NrU0RlZW0wCkNpV1ZiL2QvaldZc3YyZGNRbjBx
+        MlJjMUxOblZOd2ErMVI0andOODF1ck0KLS0tIGJmV2lEK3RndWlwcFFQMXdNU3Jr
+        MDlzUXZGNzFhRTZHZG53anhDbS8wQ1EKFB//0SjfoG9gKS/If4PPn1BCOX3Is3/D
+        06lOJjw27mliOTctxAYMivbYBAYQr3kReVveuMxA2yxdainRxL+y7w==
+        -----END AGE ENCRYPTED FILE-----
+      recipient: age1zrwh8ph6gq4r9qzz6627c0v6cucvqfu37drj0q8pjlxk0rfu3szqx4v68a
+  encrypted_regex: ^(data|stringData)$
+  lastmodified: "2026-07-19T12:29:30Z"
+  mac: ENC[AES256_GCM,data:aSagbBMUT5skBHcVh2hMBcGFQzuBSvAHP5CTSs4Wxg9CnAoaid9AnlTmy/c447t4uhObTNoyphmHfPv6mVefgjnKTNg6w0tDFmemG+WbFglJtYtQmWmhUkOxIPrzB+x8zkaF9UNTmojvz4KGXEZn6bJheObyGKTX9jEy6rTVTzs=,iv:TW1Yr1wx0RxqXNkTaUmGjqfNYYO19+NICFLa5d6u6SI=,tag:g+g2SextXY8HUhWhcB34TQ==,type:str]
+  mac_only_encrypted: true
+  version: 3.13.2
