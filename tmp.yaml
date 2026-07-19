@@ -7,7 +7,7 @@ spec:
   restartPolicy: Never
   containers:
     - name: dns-test
-      image: busybox:1.36
+      image: busybox:1.38
       command: ["nslookup", "smtp.migadu.com"]
       resources:
         requests:
