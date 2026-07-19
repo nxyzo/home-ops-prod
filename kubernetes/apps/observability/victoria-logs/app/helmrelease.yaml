@@ -15,7 +15,7 @@ spec:
       persistentVolume:
         enabled: true
         storageClassName: longhorn-db-dr-weekly
-        size: 20Gi
+        size: 25Gi
       retentionPeriod: 14d
       route:
         enabled: true
