@@ -6,11 +6,13 @@ metadata:
 data:
   passwordless-authentication.yaml: |
     version: 1
+
     metadata:
       name: Passwordless authentication flow
+
     entries:
-      - id: passwordless-authentication-flow
-        model: authentik_flows.flow
+      - model: authentik_flows.flow
+        id: passwordless-flow
         identifiers:
           slug: passwordless-authentication-flow
         attrs:
@@ -18,12 +20,11 @@ data:
           title: Login with Passkey
           designation: authentication
           authentication: none
-          compatibility_mode: true
-          layout: stacked
           denied_action: message_continue
+          layout: stacked
 
-      - id: authentication-webauthn-validation
-        model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+      - model: authentik_stages_authenticator_validate.authenticatorvalidatestage
+        id: passwordless-webauthn-validation
         identifiers:
           name: authentication-webauthn-validation
         attrs:
@@ -32,8 +33,8 @@ data:
             - webauthn
           webauthn_user_verification: required
 
-      - id: passwordless-authentication-login
-        model: authentik_stages_user_login.userloginstage
+      - model: authentik_stages_user_login.userloginstage
+        id: passwordless-login
         identifiers:
           name: passwordless-authentication-login
         attrs:
@@ -41,18 +42,22 @@ data:
 
       - model: authentik_flows.flowstagebinding
         identifiers:
-          target: !KeyOf passwordless-authentication-flow
-          stage: !KeyOf authentication-webauthn-validation
+          target: !KeyOf passwordless-flow
+          stage: !KeyOf passwordless-webauthn-validation
           order: 10
 
       - model: authentik_flows.flowstagebinding
         identifiers:
-          target: !KeyOf passwordless-authentication-flow
-          stage: !KeyOf passwordless-authentication-login
+          target: !KeyOf passwordless-flow
+          stage: !KeyOf passwordless-login
           order: 100
 
       - model: authentik_stages_identification.identificationstage
         identifiers:
           name: default-authentication-identification
         attrs:
-          passwordless_flow: !KeyOf passwordless-authentication-flow
+          passwordless_flow:
+            !Find [
+              authentik_flows.flow,
+              [slug, passwordless-authentication-flow],
+            ]
