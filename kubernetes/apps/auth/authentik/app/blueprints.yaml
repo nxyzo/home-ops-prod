@@ -28,7 +28,7 @@ data:
         identifiers:
           name: authentication-webauthn-validation
         attrs:
-          not_configured_action: deny
+          not_configured_action: configure
           device_classes:
             - webauthn
           webauthn_user_verification: required
