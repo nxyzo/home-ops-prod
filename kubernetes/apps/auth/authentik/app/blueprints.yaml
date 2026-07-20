@@ -59,8 +59,11 @@ data:
           user_fields:
             - username
             - email
+
           passwordless_flow:
             !Find [
               authentik_flows.flow,
               [slug, passwordless-authentication-flow],
             ]
+
+          webauthn_stage: !KeyOf passwordless-webauthn-validation
