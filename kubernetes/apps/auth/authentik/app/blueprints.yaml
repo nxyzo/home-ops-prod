@@ -56,6 +56,9 @@ data:
         identifiers:
           name: default-authentication-identification
         attrs:
+          user_fields:
+            - username
+            - email
           passwordless_flow:
             !Find [
               authentik_flows.flow,
