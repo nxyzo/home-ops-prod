@@ -1,0 +1,23 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: policy-reporter-ui-oidc
+  namespace: kyverno
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: policy-reporter-ui
+  oidc:
+    provider:
+      issuer: "https://policy-reporter.${SECRET_DOMAIN}/application/o/policy-reporter"
+    clientID: "policy-reporter-envoy"
+    clientSecret:
+      name: authentik-policy-reporter-oidc
+    redirectURL: "https://policy-reporter.${SECRET_DOMAIN}/oauth2/callback"
+    logoutPath: "/oauth2/logout"
+    scopes:
+      - openid
+      - profile
+      - email
