@@ -52,6 +52,11 @@ spec:
             secretKeyRef:
               name: authentik-longhorn-oidc
               key: client-secret
+        - name: POLICY_REPORTER_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-longhorn-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000

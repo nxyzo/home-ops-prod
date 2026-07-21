@@ -208,7 +208,7 @@ data:
           attrs:
             name: policy-reporter
             client_id: policy-reporter-envoy
-            client_secret: !Env policy-reporter_OIDC_CLIENT_SECRET
+            client_secret: !Env POLICY_REPORTER_OIDC_CLIENT_SECRET
             client_type: confidential
             grant_types:
               - authorization_code
