@@ -120,8 +120,9 @@ data:
             - [slug, default-provider-invalidation-flow]
 
           redirect_uris:
-            - matching_mode: strict
-              url: "https://longhorn.${SECRET_DOMAIN}/"
+            redirect_uris:
+              - matching_mode: strict
+                url: "https://longhorn.${SECRET_DOMAIN}/oauth2/callback"
           property_mappings:
             - !Find
               - authentik_providers_oauth2.scopemapping
