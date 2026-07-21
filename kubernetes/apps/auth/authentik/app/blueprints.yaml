@@ -109,6 +109,9 @@ data:
           client_id: longhorn-envoy
           client_secret: !Env LONGHORN_OIDC_CLIENT_SECRET
           client_type: confidential
+          grant_types:
+            - authorization_code
+            - refresh_token
 
           authorization_flow: !Find
             - authentik_flows.flow
