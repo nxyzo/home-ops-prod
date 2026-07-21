@@ -69,3 +69,23 @@ data:
             ]
 
           webauthn_stage: !KeyOf passwordless-webauthn-validation
+
+  password-policy-hardening.yaml: |
+      version: 1
+      metadata:
+        name: Password policy hardening
+
+      entries:
+        - model: authentik_policies_password.passwordpolicy
+          id: default-password-change-password-policy
+          identifiers:
+            name: default-password-change-password-policy
+          attrs:
+            length_min: 15
+            check_static_rules: true
+            check_zxcvbn: true
+            zxcvbn_score_threshold: 2
+            check_have_i_been_pwned: true
+            hibp_allowed_count: 0
+            password_field: password
+            error_message: "Password must be at least 15 characters long and must not appear in known data breaches."
