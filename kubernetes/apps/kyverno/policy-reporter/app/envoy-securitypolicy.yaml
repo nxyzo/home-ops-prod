@@ -11,7 +11,7 @@ spec:
       name: policy-reporter-ui
   oidc:
     provider:
-      issuer: "https://policy-reporter.${SECRET_DOMAIN}/application/o/policy-reporter"
+      issuer: "https://authentik.${SECRET_DOMAIN}/application/o/policy-reporter"
     clientID: "policy-reporter-envoy"
     clientSecret:
       name: authentik-policy-reporter-oidc
