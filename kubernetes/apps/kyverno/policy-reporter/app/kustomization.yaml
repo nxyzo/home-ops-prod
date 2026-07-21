@@ -7,3 +7,5 @@ resources:
   - ./ocirepository.yaml
   - ./secret.sops.yaml
   - ./httproute.yaml
+  - ./envoy-securitypolicy.yaml
+  - ./oidc.secret.sops.yaml
