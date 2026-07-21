@@ -89,6 +89,29 @@ data:
             hibp_allowed_count: 0
             password_field: password
             error_message: "Password must be at least 15 characters long and must not appear in known data breaches."
+  groups.yaml: |
+    version: 1
+
+    metadata:
+      name: Groups
+
+    entries:
+      - model: authentik_core.group
+        id: infra-admins-group
+        state: present
+        identifiers:
+          name: infra-admins
+        attrs:
+          name: infra-admins
+          is_superuser: true
+      - model: authentik_core.group
+        id: users
+        state: present
+        identifiers:
+          name: users
+        attrs:
+          name: users
+          is_superuser: false
 
   oidc-longhorn.yaml: |
     version: 1
