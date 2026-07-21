@@ -181,3 +181,12 @@ data:
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure"
+
+      - model: authentik_policies.policybinding
+        identifiers:
+          target: !KeyOf longhorn-application
+          group: !Find [authentik_core.group, [name, infra-admins]]
+          order: 0
+        attrs:
+          enabled: true
+          negate: false
