@@ -108,7 +108,6 @@ data:
           name: Longhorn
           client_id: longhorn-envoy
           client_secret: !Env LONGHORN_OIDC_CLIENT_SECRET
-
           client_type: confidential
 
           authorization_flow: !Find
@@ -119,10 +118,15 @@ data:
             - authentik_flows.flow
             - [slug, default-provider-invalidation-flow]
 
+          signing_key: !Find
+            - authentik_crypto.certificatekeypair
+            - [name, authentik Self-signed Certificate]
+
           redirect_uris:
             - matching_mode: strict
               url: "https://longhorn.${SECRET_DOMAIN}/oauth2/callback"
-        property_mappings:
+
+          property_mappings:
             - !Find
               - authentik_providers_oauth2.scopemapping
               - [managed, goauthentik.io/providers/oauth2/scope-openid]
