@@ -46,6 +46,12 @@ spec:
           value: s3.eu-central-003.backblazeb2.com/authentik-media-files
         - name: AUTHENTIK_STORAGE__S3__ADDRESSING_STYLE
           value: path
+        # Longhorn OIDC Client Secret
+        - name: LONGHORN_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-longhorn-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000
