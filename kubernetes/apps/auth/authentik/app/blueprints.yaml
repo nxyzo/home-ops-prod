@@ -177,7 +177,7 @@ data:
           slug: longhorn
           provider: !KeyOf longhorn-oidc-provider
           meta_launch_url: "https://longhorn.${SECRET_DOMAIN}/"
-          meta_icon: "https://raw.githubusercontent.com/longhorn/longhorn/master/logos/icon-logo.png"
+          meta_icon: "https://github.com/longhorn/website/raw/master/static/img/logos/longhorn-stacked-color.png"
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure"
