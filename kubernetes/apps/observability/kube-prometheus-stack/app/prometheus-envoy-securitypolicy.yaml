@@ -1,0 +1,23 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: prometheus-ui-oidc
+  namespace: observability
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: kube-prometheus-stack-prometheus
+  oidc:
+    provider:
+      issuer: "https://authentik.${SECRET_DOMAIN}/application/o/longhorn"
+    clientID: "prometheus-envoy"
+    clientSecret:
+      name: authentik-prometheus-oidc
+    redirectURL: "https://prometheus.${SECRET_DOMAIN}/oauth2/callback"
+    logoutPath: "/oauth2/logout"
+    scopes:
+      - openid
+      - profile
+      - email

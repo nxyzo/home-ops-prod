@@ -8,3 +8,5 @@ resources:
   - ./secret.sops.yaml
   - ./grafanadashboard.yaml
   - ./alertmanagerconfig.yaml
+  - ./prometheus.oidc.secret.sops.yaml
+  - ./prometheus-envoy-securitypolicy.yaml
