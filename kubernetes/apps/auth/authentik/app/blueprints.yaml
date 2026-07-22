@@ -104,8 +104,6 @@ data:
         attrs:
           name: grafana-admins
           is_superuser: false
-          parents:
-            - !KeyOf infra-admins-group
 
       - model: authentik_core.group
         id: infra-admins-group
@@ -115,6 +113,8 @@ data:
         attrs:
           name: infra-admins
           is_superuser: true
+          parents:
+            - !KeyOf grafana-admins-group
 
       - model: authentik_core.group
         id: users
