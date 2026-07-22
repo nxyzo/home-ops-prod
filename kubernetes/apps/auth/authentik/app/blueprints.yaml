@@ -181,6 +181,7 @@ data:
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure"
+          meta_description: "Cloud-Native distributed storage built on and for Kubernetes"
 
       - model: authentik_policies.policybinding
         identifiers:
@@ -251,7 +252,7 @@ data:
           slug: policy-reporter
 
         attrs:
-          name: policy-reporter
+          name: Kyverno policy-reporter
           slug: policy-reporter
           provider: !KeyOf policy-reporter-oidc-provider
           meta_launch_url: "https://policy-reporter.${SECRET_DOMAIN}/"
@@ -259,6 +260,7 @@ data:
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure / Security"
+          meta_description: "Monitoring and Observability Tool for the PolicyReport CRD with an optional UI."
 
       - model: authentik_policies.policybinding
         identifiers:
