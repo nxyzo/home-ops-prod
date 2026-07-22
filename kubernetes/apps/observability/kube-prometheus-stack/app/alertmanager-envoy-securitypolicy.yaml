@@ -1,0 +1,23 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: alertmanager-ui-oidc
+  namespace: observability
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: kube-prometheus-stack-alertmanager
+  oidc:
+    provider:
+      issuer: "https://authentik.${SECRET_DOMAIN}/application/o/alertmanager"
+    clientID: "alertmanager-envoy"
+    clientSecret:
+      name: authentik-alertmanager-oidc
+    redirectURL: "https://alertmanager.${SECRET_DOMAIN}/oauth2/callback"
+    logoutPath: "/oauth2/logout"
+    scopes:
+      - openid
+      - profile
+      - email

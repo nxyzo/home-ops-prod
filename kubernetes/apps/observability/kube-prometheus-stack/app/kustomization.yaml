@@ -10,3 +10,5 @@ resources:
   - ./alertmanagerconfig.yaml
   - ./prometheus.oidc.secret.sops.yaml
   - ./prometheus-envoy-securitypolicy.yaml
+  - ./alertmanager-envoy-securitypolicy.yaml
+  - ./alertmanager.oidc.secret.sops.yaml

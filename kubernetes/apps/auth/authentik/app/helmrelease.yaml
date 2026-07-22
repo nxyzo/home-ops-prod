@@ -67,6 +67,11 @@ spec:
             secretKeyRef:
               name: authentik-prometheus-oidc
               key: client-secret
+        - name: ALERTMANAGER_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-alertmanager-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000
