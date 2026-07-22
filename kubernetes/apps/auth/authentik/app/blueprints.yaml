@@ -97,6 +97,15 @@ data:
 
     entries:
       - model: authentik_core.group
+        id: grafana-admins-group
+        state: present
+        identifiers:
+          name: grafana-admins
+        attrs:
+          name: grafana-admins
+          is_superuser: false
+
+      - model: authentik_core.group
         id: infra-admins-group
         state: present
         identifiers:
@@ -104,6 +113,9 @@ data:
         attrs:
           name: infra-admins
           is_superuser: true
+          parents:
+            - !KeyOf grafana-admins-group
+
       - model: authentik_core.group
         id: users
         state: present
@@ -111,6 +123,24 @@ data:
           name: users
         attrs:
           name: users
+          is_superuser: false
+
+      - model: authentik_core.group
+        id: grafana-editors-group
+        state: present
+        identifiers:
+          name: grafana-editors
+        attrs:
+          name: grafana-editors
+          is_superuser: false
+
+      - model: authentik_core.group
+        id: grafana-viewers-group
+        state: present
+        identifiers:
+          name: grafana-viewers
+        attrs:
+          name: grafana-viewers
           is_superuser: false
 
   oidc-longhorn.yaml: |
