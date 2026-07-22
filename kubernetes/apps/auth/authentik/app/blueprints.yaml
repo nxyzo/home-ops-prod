@@ -93,7 +93,7 @@ data:
     version: 1
 
     metadata:
-      name: Groups
+      name: Groups v2
 
     entries:
       - model: authentik_core.group
@@ -114,10 +114,10 @@ data:
           name: infra-admins
           is_superuser: true
           parents:
-            - !KeyOf grafana-admins-group
+            - !Find [authentik_core.group, [name, grafana-admins]]
 
       - model: authentik_core.group
-        id: users
+        id: users-group
         state: present
         identifiers:
           name: users
