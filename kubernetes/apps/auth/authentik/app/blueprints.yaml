@@ -329,7 +329,7 @@ data:
           slug: hubble
 
         attrs:
-          name: hubble
+          name: Hubble UI
           slug: hubble
           provider: !KeyOf hubble-oidc-provider
           meta_launch_url: "https://hubble.${SECRET_DOMAIN}/"
