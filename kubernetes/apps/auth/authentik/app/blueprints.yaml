@@ -335,7 +335,7 @@ data:
           slug: hubble
           provider: !KeyOf hubble-oidc-provider
           meta_launch_url: "https://hubble.${SECRET_DOMAIN}/"
-          meta_icon: "https://avatars.githubusercontent.com/u/21054566?s=48&v=4"
+          meta_icon: "https://cdn.jsdelivr.net/gh/selfhst/icons/webp/cilium-hubble.webp"
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure / Network"
