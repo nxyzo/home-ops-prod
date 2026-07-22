@@ -177,7 +177,7 @@ data:
           slug: longhorn
           provider: !KeyOf longhorn-oidc-provider
           meta_launch_url: "https://longhorn.${SECRET_DOMAIN}/"
-          meta_icon: "https://github.com/longhorn/website/raw/master/static/img/logos/longhorn-stacked-color.png"
+          meta_icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/longhorn.webp"
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure"
@@ -571,7 +571,7 @@ data:
           slug: victorialogs
           provider: !KeyOf victorialogs-oidc-provider
           meta_launch_url: "https://victoria-logs.${SECRET_DOMAIN}/"
-          meta_icon: "https://avatars.githubusercontent.com/u/43720803?s=48&v=4"
+          meta_icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/victorialogs.webp"
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure / Monitoring"
