@@ -77,6 +77,11 @@ spec:
             secretKeyRef:
               name: authentik-victorialogs-oidc
               key: client-secret
+        - name: VMALERT_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-vmalert-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000

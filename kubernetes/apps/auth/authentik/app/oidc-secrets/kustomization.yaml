@@ -9,3 +9,4 @@ resources:
   - ./prometheus-oidc.secret.sops.yaml
   - ./alertmanager-oidc.secret.sops.yaml
   - ./victorialogs-oidc.secret.sops.yaml
+  - ./vmalert-oidc.secret.sops.yaml

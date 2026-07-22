@@ -1,0 +1,23 @@
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: vmalert-ui-oidc
+  namespace: observability
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: victoria-metrics-alert-server
+  oidc:
+    provider:
+      issuer: "https://authentik.${SECRET_DOMAIN}/application/o/vmalert"
+    clientID: "vmalert-envoy"
+    clientSecret:
+      name: authentik-vmalert-oidc
+    redirectURL: "https://vm-alerts.${SECRET_DOMAIN}/oauth2/callback"
+    logoutPath: "/oauth2/logout"
+    scopes:
+      - openid
+      - profile
+      - email
