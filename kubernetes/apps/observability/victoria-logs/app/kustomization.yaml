@@ -5,3 +5,5 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ./ocirepository.yaml
+  - ./victorialogs-envoy-securitypolicy.yaml
+  - ./victorialogs.oidc.secret.sops.yaml

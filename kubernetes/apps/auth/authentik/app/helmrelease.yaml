@@ -72,6 +72,11 @@ spec:
             secretKeyRef:
               name: authentik-alertmanager-oidc
               key: client-secret
+        - name: VICTORIALOGS_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-victorialogs-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000

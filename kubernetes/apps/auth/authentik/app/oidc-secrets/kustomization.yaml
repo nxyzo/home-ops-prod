@@ -8,3 +8,4 @@ resources:
   - ./hubble-oidc.secret.sops.yaml
   - ./prometheus-oidc.secret.sops.yaml
   - ./alertmanager-oidc.secret.sops.yaml
+  - ./victorialogs-oidc.secret.sops.yaml
