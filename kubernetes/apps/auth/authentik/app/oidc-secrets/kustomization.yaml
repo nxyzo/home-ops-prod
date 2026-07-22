@@ -5,3 +5,4 @@ kind: Kustomization
 resources:
   - ./longhorn-oidc.secret.sops.yaml
   - ./policyreporter-oidc.secret.sops.yaml
+  - ./hubble-oidc.secret.sops.yaml

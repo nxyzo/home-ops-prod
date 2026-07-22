@@ -57,6 +57,11 @@ spec:
             secretKeyRef:
               name: authentik-policy-reporter-oidc
               key: client-secret
+        - name: HUBBLE_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-hubble-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000
