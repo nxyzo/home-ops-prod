@@ -14,8 +14,27 @@ spec:
       reporting_enabled: "false"
     auth:
       disable_login_form: "false"
+      oauth_auto_login: "false"
+      signout_redirect_url: "https://authentik.${SECRET_DOMAIN}/application/o/grafana/end-session/"
     auth.anonymous:
+      enabled: "false"
+    auth.generic_oauth:
       enabled: "true"
+      name: "Authentik"
+      icon: "signin"
+      client_id: "grafana-envoy"
+      scopes: "openid profile email groups"
+      auth_url: "https://authentik.${SECRET_DOMAIN}/application/o/authorize/"
+      token_url: "https://authentik.${SECRET_DOMAIN}/application/o/token/"
+      api_url: "https://authentik.${SECRET_DOMAIN}/application/o/userinfo/"
+      role_attribute_path: >-
+        contains(groups[*], 'grafana-admins') && 'Admin' ||
+        contains(groups[*], 'grafana-editors') && 'Editor' ||
+        contains(groups[*], 'grafana-viewers') && 'Viewer' ||
+        'None'
+      role_attribute_strict: "true"
+      allow_assign_grafana_admin: "true"
+      use_pkce: "true"
     log:
       mode: console
     metrics:
@@ -43,6 +62,11 @@ spec:
                     secretKeyRef:
                       name: grafana-admin-password-secret
                       key: GF_SECURITY_ADMIN_PASSWORD
+                - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: authentik-grafana-oidc
+                      key: client-secret
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true

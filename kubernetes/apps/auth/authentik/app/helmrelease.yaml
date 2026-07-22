@@ -82,6 +82,11 @@ spec:
             secretKeyRef:
               name: authentik-vmalert-oidc
               key: client-secret
+        - name: GRAFANA_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-grafana-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000
