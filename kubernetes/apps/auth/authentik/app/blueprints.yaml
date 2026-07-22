@@ -782,13 +782,49 @@ data:
           meta_description: "The open and composable observability and data visualization platform. Visualize metrics, logs, and traces from multiple sources like Prometheus, Loki, Elasticsearch, InfluxDB, Postgres and many more."
 
       - model: authentik_policies.policybinding
+        state: present
         identifiers:
           target: !KeyOf grafana-application
-        - group: !Find [authentik_core.group, [name, infra-admins]]
-        - group: !Find [authentik_core.group, [name, grafana-admins]]
-        - group: !Find [authentik_core.group, [name, grafana-editors]]
-        - group: !Find [authentik_core.group, [name, grafana-viewers]]
-          order: 0
+          group: !Find
+            - authentik_core.group
+            - [name, infra-admins]
         attrs:
+          order: 0
+          enabled: true
+          negate: false
+
+      - model: authentik_policies.policybinding
+        state: present
+        identifiers:
+          target: !KeyOf grafana-application
+          group: !Find
+            - authentik_core.group
+            - [name, grafana-admins]
+        attrs:
+          order: 1
+          enabled: true
+          negate: false
+
+      - model: authentik_policies.policybinding
+        state: present
+        identifiers:
+          target: !KeyOf grafana-application
+          group: !Find
+            - authentik_core.group
+            - [name, grafana-editors]
+        attrs:
+          order: 2
+          enabled: true
+          negate: false
+
+      - model: authentik_policies.policybinding
+        state: present
+        identifiers:
+          target: !KeyOf grafana-application
+          group: !Find
+            - authentik_core.group
+            - [name, grafana-viewers]
+        attrs:
+          order: 3
           enabled: true
           negate: false
