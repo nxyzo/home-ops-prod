@@ -784,7 +784,11 @@ data:
       - model: authentik_policies.policybinding
         identifiers:
           target: !KeyOf grafana-application
-          group: !Find [authentik_core.group, [name, infra-admins]]
+          groups:
+            - !Find [authentik_core.group, [name, infra-admins]]
+            - !Find [authentik_core.group, [name, grafana-admins]]
+            - !Find [authentik_core.group, [name, grafana-editors]]
+            - !Find [authentik_core.group, [name, grafana-viewers]]
           order: 0
         attrs:
           enabled: true
