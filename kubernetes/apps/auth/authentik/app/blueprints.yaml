@@ -96,7 +96,7 @@ data:
         attrs:
           validation_policies:
             - !KeyOf default-password-change-password-policy
-    password-recovery-objects.yaml: |
+  password-recovery-objects.yaml: |
     version: 1
 
     metadata:
