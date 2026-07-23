@@ -12,6 +12,9 @@ spec:
   oidc:
     provider:
       issuer: "https://authentik.${SECRET_DOMAIN}/application/o/victorialogs"
+      authorizationEndpoint: https://authentik.ciliumvalley.com/application/o/authorize/
+      tokenEndpoint: https://authentik.ciliumvalley.com/application/o/token/
+      endSessionEndpoint: https://authentik.ciliumvalley.com/application/o/victorialogs/end-session/
     clientID: "victorialogs-envoy"
     clientSecret:
       name: authentik-victorialogs-oidc
