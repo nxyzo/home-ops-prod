@@ -112,6 +112,7 @@ data:
           name: Forgot password
           title: Reset your password
           designation: recovery
+          authentication: none
           denied_action: message_continue
           layout: stacked
 
@@ -134,7 +135,7 @@ data:
           name: password-recovery-email
         attrs:
           use_global_settings: true
-          token_expiry: minutes=30
+          token_expiry: 30
           subject: "authentik: Password Recovery"
           template: email/password_reset.html
 
@@ -143,8 +144,8 @@ data:
         state: present
         identifiers:
           field_key: password
-          name: password-recovery-password
         attrs:
+          name: password-recovery-password
           label: New password
           type: password
           required: true
@@ -155,8 +156,8 @@ data:
         state: present
         identifiers:
           field_key: password_repeat
-          name: password-recovery-password-repeat
         attrs:
+          name: password-recovery-password-repeat
           label: Confirm password
           type: password
           required: true
