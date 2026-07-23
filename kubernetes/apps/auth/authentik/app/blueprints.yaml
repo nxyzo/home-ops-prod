@@ -98,24 +98,26 @@ data:
             - !KeyOf default-password-change-password-policy
   password-recovery.yaml: |
     version: 1
+
     metadata:
       name: Password recovery flow
 
     entries:
       - model: authentik_flows.flow
         id: password-recovery-flow
+        state: present
         identifiers:
           slug: password-recovery-flow
         attrs:
           name: Forgot password
           title: Reset your password
           designation: recovery
-          authentication: none
           denied_action: message_continue
           layout: stacked
 
       - model: authentik_stages_identification.identificationstage
         id: password-recovery-identification
+        state: present
         identifiers:
           name: password-recovery-identification
         attrs:
@@ -127,6 +129,7 @@ data:
 
       - model: authentik_stages_email.emailstage
         id: password-recovery-email
+        state: present
         identifiers:
           name: password-recovery-email
         attrs:
@@ -137,6 +140,7 @@ data:
 
       - model: authentik_stages_prompt.prompt
         id: password-recovery-field-password
+        state: present
         identifiers:
           field_key: password
           name: password-recovery-password
@@ -148,6 +152,7 @@ data:
 
       - model: authentik_stages_prompt.prompt
         id: password-recovery-field-password-repeat
+        state: present
         identifiers:
           field_key: password_repeat
           name: password-recovery-password-repeat
@@ -159,6 +164,7 @@ data:
 
       - model: authentik_stages_prompt.promptstage
         id: password-recovery-prompt-stage
+        state: present
         identifiers:
           name: password-recovery-prompt
         attrs:
@@ -166,57 +172,53 @@ data:
             - !KeyOf password-recovery-field-password
             - !KeyOf password-recovery-field-password-repeat
           validation_policies:
-            - !Find [authentik_policies_password.passwordpolicy, [name, default-password-change-password-policy]]
+            - !Find
+              - authentik_policies_password.passwordpolicy
+              - [name, default-password-change-password-policy]
 
       - model: authentik_stages_user_write.userwritestage
         id: password-recovery-write
+        state: present
         identifiers:
           name: password-recovery-write
         attrs:
           user_creation_mode: never_create
 
-      - model: authentik_stages_user_login.userloginstage
-        id: password-recovery-login
-        identifiers:
-          name: password-recovery-login
-        attrs:
-          session_duration: seconds=0
-
       - model: authentik_flows.flowstagebinding
+        state: present
         identifiers:
           target: !KeyOf password-recovery-flow
           stage: !KeyOf password-recovery-identification
           order: 10
 
       - model: authentik_flows.flowstagebinding
+        state: present
         identifiers:
           target: !KeyOf password-recovery-flow
           stage: !KeyOf password-recovery-email
           order: 20
 
       - model: authentik_flows.flowstagebinding
+        state: present
         identifiers:
           target: !KeyOf password-recovery-flow
           stage: !KeyOf password-recovery-prompt-stage
           order: 30
 
       - model: authentik_flows.flowstagebinding
+        state: present
         identifiers:
           target: !KeyOf password-recovery-flow
           stage: !KeyOf password-recovery-write
           order: 40
 
-      - model: authentik_flows.flowstagebinding
-        identifiers:
-          target: !KeyOf password-recovery-flow
-          stage: !KeyOf password-recovery-login
-          order: 50
-
       - model: authentik_stages_identification.identificationstage
+        state: present
         identifiers:
           name: default-authentication-identification
         attrs:
           recovery_flow: !KeyOf password-recovery-flow
+
   groups.yaml: |
     version: 1
 
