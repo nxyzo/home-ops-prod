@@ -444,7 +444,7 @@ data:
           slug: prometheus
           provider: !KeyOf prometheus-oidc-provider
           meta_launch_url: "https://prometheus.${SECRET_DOMAIN}/"
-          meta_icon: "https://github.com/prometheus/prometheus/raw/main/documentation/images/prometheus-logo.svg"
+          meta_icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/prometheus.webp"
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure / Monitoring"
@@ -523,7 +523,7 @@ data:
           slug: alertmanager
           provider: !KeyOf alertmanager-oidc-provider
           meta_launch_url: "https://alertmanager.${SECRET_DOMAIN}/"
-          meta_icon: "https://github.com/prometheus/prometheus/raw/main/documentation/images/prometheus-logo.svg"
+          meta_icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/webp/prometheus.webp"
           policy_engine_mode: any
           open_in_new_tab: true
           group: "Infrastructure / Monitoring"
