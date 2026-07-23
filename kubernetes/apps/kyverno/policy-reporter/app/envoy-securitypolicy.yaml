@@ -12,6 +12,9 @@ spec:
   oidc:
     provider:
       issuer: "https://authentik.${SECRET_DOMAIN}/application/o/policy-reporter"
+      authorizationEndpoint: https://authentik.ciliumvalley.com/application/o/authorize/
+      tokenEndpoint: https://authentik.ciliumvalley.com/application/o/token/
+      endSessionEndpoint: https://authentik.ciliumvalley.com/application/o/policy-reporter/end-session/
     clientID: "policy-reporter-envoy"
     clientSecret:
       name: authentik-policy-reporter-oidc
