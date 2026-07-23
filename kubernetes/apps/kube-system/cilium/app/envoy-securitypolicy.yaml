@@ -12,6 +12,9 @@ spec:
   oidc:
     provider:
       issuer: "https://authentik.${SECRET_DOMAIN}/application/o/hubble"
+      authorizationEndpoint: https://authentik.ciliumvalley.com/application/o/authorize/
+      tokenEndpoint: https://authentik.ciliumvalley.com/application/o/token/
+      endSessionEndpoint: https://authentik.ciliumvalley.com/application/o/hubble/end-session/
     clientID: "hubble-envoy"
     clientSecret:
       name: authentik-hubble-oidc
