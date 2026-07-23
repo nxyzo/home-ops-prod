@@ -245,6 +245,22 @@ data:
             - authentik_flows.flow
             - [slug, password-recovery-flow]
 
+  password-recovery-brand.yaml: |
+    version: 1
+
+    metadata:
+      name: Password recovery brand configuration
+
+    entries:
+      - model: authentik_brands.brand
+        state: present
+        identifiers:
+          default: true
+        attrs:
+          flow_recovery: !Find
+            - authentik_flows.flow
+            - [slug, password-recovery-flow]
+
   groups.yaml: |
     version: 1
 
