@@ -12,6 +12,9 @@ spec:
   oidc:
     provider:
       issuer: "https://authentik.${SECRET_DOMAIN}/application/o/longhorn"
+      authorizationEndpoint: https://authentik.ciliumvalley.com/application/o/authorize/
+      tokenEndpoint: https://authentik.ciliumvalley.com/application/o/token/
+      endSessionEndpoint: https://authentik.ciliumvalley.com/application/o/longhorn/end-session/
     clientID: "longhorn-envoy"
     clientSecret:
       name: authentik-longhorn-oidc
