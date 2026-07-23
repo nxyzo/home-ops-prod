@@ -96,15 +96,14 @@ data:
         attrs:
           validation_policies:
             - !KeyOf default-password-change-password-policy
-  password-recovery.yaml: |
+    password-recovery-objects.yaml: |
     version: 1
 
     metadata:
-      name: Password recovery flow
+      name: Password recovery objects
 
     entries:
       - model: authentik_flows.flow
-        id: password-recovery-flow
         state: present
         identifiers:
           slug: password-recovery-flow
@@ -117,7 +116,6 @@ data:
           layout: stacked
 
       - model: authentik_stages_identification.identificationstage
-        id: password-recovery-identification
         state: present
         identifiers:
           name: password-recovery-identification
@@ -129,7 +127,6 @@ data:
           show_matched_user: false
 
       - model: authentik_stages_email.emailstage
-        id: password-recovery-email
         state: present
         identifiers:
           name: password-recovery-email
@@ -140,7 +137,6 @@ data:
           template: email/password_reset.html
 
       - model: authentik_stages_prompt.prompt
-        id: password-recovery-field-password
         state: present
         identifiers:
           field_key: password
@@ -152,7 +148,6 @@ data:
           order: 0
 
       - model: authentik_stages_prompt.prompt
-        id: password-recovery-field-password-repeat
         state: present
         identifiers:
           field_key: password_repeat
@@ -164,53 +159,78 @@ data:
           order: 1
 
       - model: authentik_stages_prompt.promptstage
-        id: password-recovery-prompt-stage
         state: present
         identifiers:
           name: password-recovery-prompt
         attrs:
           fields:
-            - !KeyOf password-recovery-field-password
-            - !KeyOf password-recovery-field-password-repeat
+            - !Find
+              - authentik_stages_prompt.prompt
+              - [field_key, password]
+            - !Find
+              - authentik_stages_prompt.prompt
+              - [field_key, password_repeat]
           validation_policies:
             - !Find
               - authentik_policies_password.passwordpolicy
               - [name, default-password-change-password-policy]
 
       - model: authentik_stages_user_write.userwritestage
-        id: password-recovery-write
         state: present
         identifiers:
           name: password-recovery-write
         attrs:
           user_creation_mode: never_create
 
+  password-recovery-bindings.yaml: |
+    version: 1
+
+    metadata:
+      name: Password recovery bindings
+
+    entries:
       - model: authentik_flows.flowstagebinding
         state: present
         identifiers:
-          target: !KeyOf password-recovery-flow
-          stage: !KeyOf password-recovery-identification
+          target: !Find
+            - authentik_flows.flow
+            - [slug, password-recovery-flow]
+          stage: !Find
+            - authentik_stages_identification.identificationstage
+            - [name, password-recovery-identification]
           order: 10
 
       - model: authentik_flows.flowstagebinding
         state: present
         identifiers:
-          target: !KeyOf password-recovery-flow
-          stage: !KeyOf password-recovery-email
+          target: !Find
+            - authentik_flows.flow
+            - [slug, password-recovery-flow]
+          stage: !Find
+            - authentik_stages_email.emailstage
+            - [name, password-recovery-email]
           order: 20
 
       - model: authentik_flows.flowstagebinding
         state: present
         identifiers:
-          target: !KeyOf password-recovery-flow
-          stage: !KeyOf password-recovery-prompt-stage
+          target: !Find
+            - authentik_flows.flow
+            - [slug, password-recovery-flow]
+          stage: !Find
+            - authentik_stages_prompt.promptstage
+            - [name, password-recovery-prompt]
           order: 30
 
       - model: authentik_flows.flowstagebinding
         state: present
         identifiers:
-          target: !KeyOf password-recovery-flow
-          stage: !KeyOf password-recovery-write
+          target: !Find
+            - authentik_flows.flow
+            - [slug, password-recovery-flow]
+          stage: !Find
+            - authentik_stages_user_write.userwritestage
+            - [name, password-recovery-write]
           order: 40
 
       - model: authentik_stages_identification.identificationstage
@@ -218,7 +238,9 @@ data:
         identifiers:
           name: default-authentication-identification
         attrs:
-          recovery_flow: !KeyOf password-recovery-flow
+          recovery_flow: !Find
+            - authentik_flows.flow
+            - [slug, password-recovery-flow]
 
   groups.yaml: |
     version: 1
