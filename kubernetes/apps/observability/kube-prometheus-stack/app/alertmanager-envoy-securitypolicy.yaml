@@ -12,6 +12,9 @@ spec:
   oidc:
     provider:
       issuer: "https://authentik.${SECRET_DOMAIN}/application/o/alertmanager"
+      authorizationEndpoint: https://authentik.ciliumvalley.com/application/o/authorize/
+      tokenEndpoint: https://authentik.ciliumvalley.com/application/o/token/
+      endSessionEndpoint: https://authentik.ciliumvalley.com/application/o/alertmanager/end-session/
     clientID: "alertmanager-envoy"
     clientSecret:
       name: authentik-alertmanager-oidc
