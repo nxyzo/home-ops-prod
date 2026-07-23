@@ -135,7 +135,7 @@ data:
           name: password-recovery-email
         attrs:
           use_global_settings: true
-          token_expiry: 30
+          token_expiry: "minutes=30"
           subject: "authentik: Password Recovery"
           template: email/password_reset.html
 
