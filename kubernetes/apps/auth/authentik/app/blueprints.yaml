@@ -104,6 +104,8 @@ data:
         attrs:
           name: grafana-admins
           is_superuser: false
+        attributes:
+          note: "Members automatically inherit grafana-admins membership (Authentik parent-child semantics: child -> parent inheritance)"
 
       - model: authentik_core.group
         id: infra-admins-group
