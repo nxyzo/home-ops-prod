@@ -89,6 +89,14 @@ data:
             hibp_allowed_count: 0
             password_field: password
             error_message: "Password must be at least 15 characters long and must not appear in known data breaches."
+        - model: authentik_policies.policybinding
+          identifiers:
+            target: !Find [authentik_stages_prompt.promptstage, [name, default-password-change-prompt]]
+            policy: !KeyOf default-password-change-password-policy
+            order: 0
+          attrs:
+            enabled: true
+            negate: false
   groups.yaml: |
     version: 1
 
