@@ -1,0 +1,16 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: travel-trek-allow-eg-to-world
+  namespace: auth
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: trek
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - protocol: TCP
+              port: "443"

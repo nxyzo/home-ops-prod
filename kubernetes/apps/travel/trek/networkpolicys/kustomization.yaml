@@ -8,3 +8,4 @@ resources:
   - ./travel-trek-allow-eg-to-coredns.yaml
   - ./travel-trek-allow-ig-from-envoy-gateway.yaml
   - ./travel-trek-allow-eg-to-envoy-gateway.yaml
+  - ./travel-trek-allow-eg-to-world.yaml
