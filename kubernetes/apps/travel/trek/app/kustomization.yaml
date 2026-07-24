@@ -7,3 +7,4 @@ resources:
   - ./admin.secret.sops.yaml
   - ./encryption.secret.sops.yaml
   - ./oidc.secret.sops.yaml
+  - ./smtp.secret.sops.yaml
