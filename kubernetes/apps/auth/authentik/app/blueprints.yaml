@@ -298,6 +298,15 @@ data:
           note: "Members automatically inherit grafana-admins membership (Authentik parent-child semantics: child -> parent inheritance)"
 
       - model: authentik_core.group
+        id: trek-admins-group
+        state: present
+        identifiers:
+          name: trek-admins
+        attrs:
+          name: trek-admins
+          is_superuser: false
+
+      - model: authentik_core.group
         id: infra-admins-group
         state: present
         identifiers:
@@ -306,8 +315,8 @@ data:
           name: infra-admins
           is_superuser: true
           parents:
-            - !Find [authentik_core.group, [name, grafana-admins]]
-            - !Find [authentik_core.group, [name, trek-admins]]
+            - !KeyOf grafana-admins-group
+            - !KeyOf trek-admins-group
 
       - model: authentik_core.group
         id: users-group
@@ -334,15 +343,6 @@ data:
           name: grafana-viewers
         attrs:
           name: grafana-viewers
-          is_superuser: false
-
-      - model: authentik_core.group
-        id: trek-admins-group
-        state: present
-        identifiers:
-          name: trek-admins
-        attrs:
-          name: trek-admins
           is_superuser: false
 
   oidc-longhorn.yaml: |
