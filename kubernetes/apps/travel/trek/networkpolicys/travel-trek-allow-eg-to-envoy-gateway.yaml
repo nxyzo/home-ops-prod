@@ -10,7 +10,7 @@ spec:
       app.kubernetes.io/name: trek
   policyTypes:
     - Egress
-  egress:
+  Egress:
     - to:
         - namespaceSelector:
             matchLabels:
