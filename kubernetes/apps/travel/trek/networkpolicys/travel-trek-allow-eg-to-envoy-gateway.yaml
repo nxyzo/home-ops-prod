@@ -1,0 +1,23 @@
+---
+piVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: travel-trek-allow-eg-to-envoy-gateway
+  namespace: travel
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: trek
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: network
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: envoy
+      ports:
+        - protocol: TCP
+          port: 10443
