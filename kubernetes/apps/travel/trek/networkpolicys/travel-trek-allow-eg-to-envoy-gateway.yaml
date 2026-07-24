@@ -1,5 +1,4 @@
----
-piVersion: networking.k8s.io/v1
+apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: travel-trek-allow-eg-to-envoy-gateway
@@ -10,7 +9,7 @@ spec:
       app.kubernetes.io/name: trek
   policyTypes:
     - Egress
-  Egress:
+  egress:
     - to:
         - namespaceSelector:
             matchLabels:
