@@ -105,7 +105,7 @@ spec:
         enabled: true
         type: persistentVolumeClaim
         storageClass: longhorn
-        accessMode: ReadWriteOnce
+        accessMode: ReadWriteOncePod
         size: 10Gi
         globalMounts:
           - path: /app/data
