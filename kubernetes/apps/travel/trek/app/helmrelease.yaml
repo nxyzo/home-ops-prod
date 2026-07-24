@@ -20,16 +20,21 @@ spec:
         pod:
           hostUsers: false
           securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
-            runAsNonRoot: false
-            seccompProfile:
-              type: RuntimeDefault
+            runAsNonRoot: true
+            seccompProfile: {type: RuntimeDefault}
         containers:
           trek:
             image:
               repository: docker.io/mauriceboe/trek
               tag: 3.4.1@sha256:ce7fab639b89a6f62d484d1175a7d489a536a8c77291f56c03fec20608d4a3eb
+            args:
+              - sh
+              - -c
+              - cd /app/server && exec node --require tsconfig-paths/register dist/index.js
             env:
               ALLOW_INTERNAL_NETWORK: "true"
               TZ: Europe/Berlin
@@ -68,28 +73,14 @@ spec:
                   key: SMTP_PASSWORD
               SMTP_FROM: trek <trek@${SECRET_DOMAIN}>
             probes:
-              readiness:
+              readiness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    port: 3000
+                    port: &port 3000
                     path: /api/health
-                  initialDelaySeconds: 10
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 6
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    port: 3000
-                    path: /api/health
-                  initialDelaySeconds: 30
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 6
+              liveness: *probes
             resources:
               requests:
                 cpu: 12m
@@ -97,15 +88,10 @@ spec:
               limits:
                 memory: 512M
             securityContext:
+              runAsNonRoot: true
               allowPrivilegeEscalation: false
-              seccompProfile:
-                type: RuntimeDefault
-              capabilities:
-                drop:
-                  - ALL
-                add:
-                  - SETUID
-                  - SETGID
+              seccompProfile: {type: RuntimeDefault}
+              capabilities: {drop: ["ALL"]}
     service:
       trek:
         controller: trek
@@ -119,10 +105,6 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
-        rules:
-          - backendRefs:
-              - identifier: trek
-                port: 3000
     persistence:
       data:
         enabled: true
