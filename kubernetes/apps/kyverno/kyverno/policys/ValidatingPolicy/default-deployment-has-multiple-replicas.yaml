@@ -38,6 +38,7 @@ spec:
             - kyverno
             - observability
             - system-upgrade
+            - travel
     resourceRules:
       - apiGroups:
           - apps

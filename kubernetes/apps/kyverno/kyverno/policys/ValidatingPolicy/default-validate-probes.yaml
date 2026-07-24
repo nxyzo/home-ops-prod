@@ -40,6 +40,7 @@ spec:
             - observability
             - system-upgrade
             - auth
+            - travel
     resourceRules:
       - apiGroups:
           - apps
