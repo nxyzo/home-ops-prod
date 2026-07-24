@@ -84,12 +84,6 @@ spec:
             securityContext:
               allowPrivilegeEscalation: false
               seccompProfile: {type: RuntimeDefault}
-              capabilities:
-                drop:
-                  - ALL
-                add:
-                  - SETUID
-                  - SETGID
     service:
       trek:
         ports:
