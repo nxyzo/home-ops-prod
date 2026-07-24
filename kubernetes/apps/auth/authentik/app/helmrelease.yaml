@@ -90,8 +90,8 @@ spec:
         - name: TREK_OIDC_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: trek-oidc-credentials
-              key: client_secret
+              name: authentik-trek-oidc
+              key: client-secret
 
       securityContext:
         runAsUser: 1000
