@@ -9,7 +9,7 @@ spec:
   maxHistory: 1
   chartRef:
     kind: OCIRepository
-    name: app-template
+    name: trek
     namespace: flux-system
   install:
     timeout: 2m
