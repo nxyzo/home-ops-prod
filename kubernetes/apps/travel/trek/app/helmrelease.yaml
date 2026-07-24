@@ -11,9 +11,9 @@ spec:
     kind: OCIRepository
     name: trek
   install:
-    timeout: 2m
+    timeout: 5m
   upgrade:
-    timeout: 2m
+    timeout: 5m
   values:
     controllers:
       trek:
@@ -23,20 +23,21 @@ spec:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
             runAsNonRoot: false
-            seccompProfile: {type: RuntimeDefault}
+            seccompProfile:
+              type: RuntimeDefault
         containers:
           trek:
             image:
               repository: docker.io/mauriceboe/trek
               tag: 3.4.1@sha256:ce7fab639b89a6f62d484d1175a7d489a536a8c77291f56c03fec20608d4a3eb
             env:
-              ALLOW_INTERNAL_NETWORK: true
+              ALLOW_INTERNAL_NETWORK: "true"
               TZ: Europe/Berlin
               DEFAULT_LANGUAGE: de
               LOG_LEVEL: debug
               APP_URL: https://trek.${SECRET_DOMAIN}
               ALLOWED_ORIGINS: https://trek.${SECRET_DOMAIN}
-              TRUST_PROXY: true
+              TRUST_PROXY: "true"
               ADMIN_EMAIL: trek-admin@${SECRET_DOMAIN}
               ADMIN_PASSWORD:
                 secretKeyRef:
@@ -46,7 +47,7 @@ spec:
                 secretKeyRef:
                   name: trek-encryption-secret
                   key: ENCRYPTION_KEY
-              OIDC_ONLY: true
+              OIDC_ONLY: "true"
               OIDC_ISSUER: https://auth.${SECRET_DOMAIN}/application/o/trek/
               OIDC_DISCOVERY_URL: https://auth.${SECRET_DOMAIN}/application/o/trek/.well-known/openid-configuration
               OIDC_CLIENT_ID: trek
@@ -59,22 +60,36 @@ spec:
               OIDC_SCOPE: openid email profile groups
               OIDC_DISPLAY_NAME: authentik
               SMTP_HOST: smtp.migadu.com
-              SMTP_PORT: 465
+              SMTP_PORT: "465"
               SMTP_USER: admin@${SECRET_DOMAIN}
               SMTP_PASS:
                 secretKeyRef:
                   name: trek-smtp-secret
                   key: SMTP_PASSWORD
-              SMTP_FROM: "trek <trek@${SECRET_DOMAIN}>"
-            # probes:
-            #   readiness: &probes
-            #     enabled: true
-            #     custom: true
-            #     spec:
-            #       httpGet:
-            #         port: &port 3000
-            #         path: /api/health
-            #   liveness: *probes
+              SMTP_FROM: trek <trek@${SECRET_DOMAIN}>
+            probes:
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    port: 3000
+                    path: /api/health
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    port: 3000
+                    path: /api/health
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 6
             resources:
               requests:
                 cpu: 12m
@@ -83,12 +98,20 @@ spec:
                 memory: 512M
             securityContext:
               allowPrivilegeEscalation: false
-              seccompProfile: {type: RuntimeDefault}
+              seccompProfile:
+                type: RuntimeDefault
+              capabilities:
+                drop:
+                  - ALL
+                add:
+                  - SETUID
+                  - SETGID
     service:
       trek:
+        controller: trek
         ports:
           http:
-            port: *port
+            port: 3000
     route:
       trek:
         hostnames:
@@ -96,6 +119,10 @@ spec:
         parentRefs:
           - name: envoy-internal
             namespace: network
+        rules:
+          - backendRefs:
+              - identifier: trek
+                port: 3000
     persistence:
       data:
         enabled: true
