@@ -87,6 +87,11 @@ spec:
             secretKeyRef:
               name: authentik-grafana-oidc
               key: client-secret
+        - name: TREK_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: trek-oidc-credentials
+              key: client_secret
 
       securityContext:
         runAsUser: 1000

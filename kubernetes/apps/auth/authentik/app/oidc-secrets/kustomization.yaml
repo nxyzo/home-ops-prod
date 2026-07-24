@@ -11,3 +11,4 @@ resources:
   - ./victorialogs-oidc.secret.sops.yaml
   - ./vmalert-oidc.secret.sops.yaml
   - ./grafana-oidc.secret.sops.yaml
+  - ./trek-oidc.secret.sops.yaml

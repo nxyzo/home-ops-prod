@@ -307,6 +307,7 @@ data:
           is_superuser: true
           parents:
             - !Find [authentik_core.group, [name, grafana-admins]]
+            - !Find [authentik_core.group, [name, trek-admins]]
 
       - model: authentik_core.group
         id: users-group
@@ -333,6 +334,15 @@ data:
           name: grafana-viewers
         attrs:
           name: grafana-viewers
+          is_superuser: false
+
+      - model: authentik_core.group
+        id: trek-admins-group
+        state: present
+        identifiers:
+          name: trek-admins
+        attrs:
+          name: trek-admins
           is_superuser: false
 
   oidc-longhorn.yaml: |
@@ -1018,5 +1028,99 @@ data:
             - [name, grafana-viewers]
         attrs:
           order: 3
+          enabled: true
+          negate: false
+  oidc-trek.yaml: |
+    version: 1
+
+    metadata:
+      name: Trek OIDC
+
+    entries:
+      - model: authentik_providers_oauth2.scopemapping
+        id: trek-groups-scope-mapping
+        state: present
+        identifiers:
+          managed: "goauthentik.io/providers/oauth2/scope-trek-groups"
+        attrs:
+          name: "Trek Groups Mapping"
+          scope_name: groups
+          description: "Sends the user's group names (including ancestor groups) as a 'groups' claim"
+          expression: |
+            return {
+                "groups": [group.name for group in request.user.all_groups()],
+            }
+
+      - model: authentik_providers_oauth2.oauth2provider
+        id: trek-oidc-provider
+        state: present
+
+        identifiers:
+          name: trek
+
+        attrs:
+          name: trek
+          client_id: trek
+          client_secret: !Env TREK_OIDC_CLIENT_SECRET
+          client_type: confidential
+          grant_types:
+            - authorization_code
+            - refresh_token
+
+          authorization_flow: !Find
+            - authentik_flows.flow
+            - [slug, default-provider-authorization-implicit-consent]
+
+          invalidation_flow: !Find
+            - authentik_flows.flow
+            - [slug, default-provider-invalidation-flow]
+
+          signing_key: !Find
+            - authentik_crypto.certificatekeypair
+            - [name, authentik Self-signed Certificate]
+
+          redirect_uris:
+            - matching_mode: strict
+              url: "https://trek.${SECRET_DOMAIN}/api/auth/oidc/callback"
+
+          property_mappings:
+            - !Find
+              - authentik_providers_oauth2.scopemapping
+              - [managed, goauthentik.io/providers/oauth2/scope-openid]
+
+            - !Find
+              - authentik_providers_oauth2.scopemapping
+              - [managed, goauthentik.io/providers/oauth2/scope-profile]
+
+            - !Find
+              - authentik_providers_oauth2.scopemapping
+              - [managed, goauthentik.io/providers/oauth2/scope-email]
+
+            - !KeyOf trek-groups-scope-mapping
+
+      - model: authentik_core.application
+        id: trek-application
+        state: present
+
+        identifiers:
+          slug: trek
+
+        attrs:
+          name: Trek
+          slug: trek
+          provider: !KeyOf trek-oidc-provider
+          meta_launch_url: "https://trek.${SECRET_DOMAIN}/"
+          meta_icon: "https://cdn.jsdelivr.net/gh/selfhst/icons/webp/trek-light.webp"
+          policy_engine_mode: any
+          open_in_new_tab: true
+          group: "Productivity"
+          meta_description: "Self-hosted travel/trip planner with real-time collaboration, maps, budgets, and packing lists"
+
+      - model: authentik_policies.policybinding
+        identifiers:
+          target: !KeyOf trek-application
+          group: !Find [authentik_core.group, [name, users]]
+          order: 0
+        attrs:
           enabled: true
           negate: false
