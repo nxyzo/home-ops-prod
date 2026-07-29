@@ -39,6 +39,7 @@ spec:
             - observability
             - system-upgrade
             - travel
+            - falco-operator
     resourceRules:
       - apiGroups:
           - apps
