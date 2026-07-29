@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://lds-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: falco-operator
+  namespace: falco-operator
+spec:
+  interval: 1h
+
+  chartRef:
+    kind: OCIRepository
+    name: falco-operator
+
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: -1
+
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+
+  values:
+    replicaCount: 1
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
