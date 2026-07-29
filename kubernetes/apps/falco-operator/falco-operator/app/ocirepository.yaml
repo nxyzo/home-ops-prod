@@ -6,3 +6,5 @@ metadata:
 spec:
   interval: 1h
   url: oci://ghcr.io/falcosecurity/charts/falco-operator
+  ref:
+    tag: 0.3.1
