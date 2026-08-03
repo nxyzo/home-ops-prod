@@ -17,3 +17,22 @@ spec:
     namespace: flux-system
   targetNamespace: falco-operator
   wait: false
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: falco-operator-networkpolicys
+spec:
+  interval: 1h
+  path: ./kubernetes/apps/falco-operator/falco-operator/networkpolicys
+  postBuild:
+    substituteFrom:
+      - name: cluster-secrets
+        kind: Secret
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: falco-operator
+  wait: false
