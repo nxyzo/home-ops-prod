@@ -1,0 +1,9 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: falco-operator
+
+resources:
+  - ./falco-operator/falco-operator-falco-operator-allow-eg-to-k8s-api.yaml
+  - ./falco-operator-default-deny-all.yaml
