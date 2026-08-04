@@ -27,12 +27,12 @@ spec:
                 - kube-system
                 - kyverno
       validate:
-        message: >-
-          Container '{{ element.name }}' does not have TZ=Europe/Berlin set.
-          Timezone should be explicitly configured for consistent log/monitoring timestamps.
         foreach:
           - list: "request.object.spec.containers"
             deny:
+              message: >-
+                Container '{{ element.name }}' does not have TZ=Europe/Berlin set.
+                Timezone should be explicitly configured for consistent log/monitoring timestamps.
               conditions:
                 any:
                   - key: "{{ element.env[?name=='TZ'] | [0].value || '' }}"
