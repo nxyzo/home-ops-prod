@@ -1,0 +1,40 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: check-container-timezone
+  annotations:
+    policies.kyverno.io/title: Check Container Timezone
+    policies.kyverno.io/category: Monitoring
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/description: >-
+      Validates that all containers in a Pod have the TZ environment
+      variable set to Europe/Berlin. Runs in Audit mode: violations are
+      reported but do not block the deployment.
+spec:
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: check-timezone-env
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      validate:
+        message: >-
+          Container '{{ element.name }}' does not have TZ=Europe/Berlin set.
+          Timezone should be explicitly configured for consistent log/monitoring timestamps.
+        foreach:
+          - list: "request.object.spec.containers"
+            deny:
+              conditions:
+                any:
+                  - key: "{{ element.env[?name=='TZ'] | [0].value || '' }}"
+                    operator: NotEquals
+                    value: Europe/Berlin

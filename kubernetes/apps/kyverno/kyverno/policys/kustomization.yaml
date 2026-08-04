@@ -16,3 +16,4 @@ resources:
   - ./DeletingPolicy/default-clean-bare-pods.yaml
   - ./DeletingPolicy/default-cleanup-empty-replicasets.yaml
   - ./GeneratingPolicy/add-default-deny-netpol.yaml
+  - ./ValidatingPolicy/check-container-timezone.yaml
