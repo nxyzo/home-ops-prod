@@ -26,11 +26,48 @@ spec:
   values:
     replicaCount: 2
     extraArgs: ["--leader-elect=true"]
+    revisionHistoryLimit: 5
+
+    image:
+      repository: falcosecurity/falco-operator
+      pullPolicy: IfNotPresent
+
+    serviceAccount:
+      create: true
+      automountServiceAccountToken: true
+
+    rbac:
+      create: true
+
+    podSecurityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
 
     resources:
       requests:
-        cpu: 50m
-        memory: 128Mi
+        cpu: 10m
+        memory: 64Mi
       limits:
         cpu: null
-        memory: 256Mi
+        memory: 128Mi
+
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: health
+      initialDelaySeconds: 15
+      periodSeconds: 20
+
+    readinessProbe:
+      httpGet:
+        path: /readyz
+        port: health
+      initialDelaySeconds: 5
+      periodSeconds: 10
