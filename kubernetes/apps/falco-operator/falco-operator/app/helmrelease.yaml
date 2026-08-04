@@ -24,7 +24,8 @@ spec:
       retries: 3
 
   values:
-    replicaCount: 1
+    replicaCount: 2
+    extraArgs: ["--leader-elect=true"]
 
     resources:
       requests:
