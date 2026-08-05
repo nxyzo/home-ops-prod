@@ -39,6 +39,7 @@ spec:
             - kyverno
             - observability
             - system-upgrade
+            - falco
     resourceRules:
       - apiGroups:
           - ""
