@@ -5,5 +5,5 @@ kind: Kustomization
 namespace: falco
 
 resources:
-  - ./falcon-falco-allow-eg-to-k8s-api.yaml
+  - ./falco-falco-allow-eg-to-k8s-api.yaml
   - ./falco-falco-allow-eg-to-host.yaml

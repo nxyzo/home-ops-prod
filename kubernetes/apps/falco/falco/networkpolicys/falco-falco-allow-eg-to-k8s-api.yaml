@@ -1,12 +1,12 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: falcon-falcon-allow-eg-to-k8s-api
-  namespace: falcon
+  name: falco-falco-allow-eg-to-k8s-api
+  namespace: falco
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: falcon
+      app.kubernetes.io/name: falco
   egress:
     - toEntities:
         - kube-apiserver
