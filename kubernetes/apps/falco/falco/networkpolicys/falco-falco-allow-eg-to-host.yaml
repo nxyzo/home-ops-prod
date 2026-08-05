@@ -10,7 +10,7 @@ spec:
   egress:
     - toEntities:
         - host
-      fromPorts:
+      toPorts:
         - ports:
             - protocol: TCP
               port: "6443"
