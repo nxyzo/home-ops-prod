@@ -41,3 +41,4 @@ spec:
             - kyverno
             - observability
             - system-upgrade
+            - falco
