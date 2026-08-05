@@ -6,4 +6,4 @@ namespace: falco
 
 resources:
   - ./falco-falco-allow-eg-to-k8s-api.yaml
-  - ./falco-falco-allow-ig-from-host.yaml
+  - ./falco-falco-allow-eg-to-host.yaml
