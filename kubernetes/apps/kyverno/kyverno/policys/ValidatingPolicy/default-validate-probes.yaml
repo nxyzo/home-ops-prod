@@ -41,6 +41,7 @@ spec:
             - system-upgrade
             - auth
             - travel
+            - falco
     resourceRules:
       - apiGroups:
           - apps
