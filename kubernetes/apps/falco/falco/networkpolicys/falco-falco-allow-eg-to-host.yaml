@@ -1,0 +1,16 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: falco-falco-allow-eg-to-host
+  namespace: falco
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: falco
+  egress:
+    - toEntities:
+        - host
+      fromPorts:
+        - ports:
+            - protocol: TCP
+              port: "6443"
