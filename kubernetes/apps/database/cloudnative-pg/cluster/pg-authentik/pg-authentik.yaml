@@ -9,6 +9,10 @@ spec:
   failoverDelay: 2
   instances: 3
 
+  affinity:
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+
   storage:
     size: 3Gi
     storageClass: "longhorn"
