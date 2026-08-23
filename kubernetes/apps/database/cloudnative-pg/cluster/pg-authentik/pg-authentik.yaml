@@ -14,7 +14,7 @@ spec:
     topologyKey: kubernetes.io/hostname
 
   storage:
-    size: 3Gi
+    size: 5Gi
     storageClass: "longhorn"
 
   postgresql:
@@ -27,7 +27,7 @@ spec:
       memory: 800Mi
       cpu: 200m
     limits:
-      memory: 4Gi
+      memory: 2Gi
 
   nodeMaintenanceWindow:
     inProgress: false
