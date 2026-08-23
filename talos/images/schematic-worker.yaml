@@ -1,0 +1,9 @@
+customization:
+  extraKernelArgs:
+    - lockdown=integrity
+
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/iscsi-tools
+      - siderolabs/qemu-guest-agent
+      - siderolabs/util-linux-tools
