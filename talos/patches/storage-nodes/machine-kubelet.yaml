@@ -17,4 +17,4 @@ provisioning:
   diskSelector:
     match: disk.dev_path == '/dev/sdb'
   grow: true
-  maxSize: 100GiB
+  maxSize: 200GiB
