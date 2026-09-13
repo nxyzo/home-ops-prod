@@ -22,8 +22,8 @@ nodes:
     ipAddress: "192.168.50.170"
     installDisk: "/dev/sda"
     machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/f171f129b1614a893bd440762f70c2ca4b98f439ca1823cf455d5874ef0da656
+      secureboot: false
+    talosImageURL: factory.talos.dev/nocloud-installer/d3d999716070c29aa4b9b409693b9ab4e4a97811264fc85e5a82090d2d1c8012
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -37,27 +37,12 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.50.247"
-    patches:
-      - # Encrypt system disk with TPM
-        |-
-        machine:
-          systemDiskEncryption:
-            state:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
-            ephemeral:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
   - hostname: "ho-prod-cp-02"
     ipAddress: "192.168.50.171"
     installDisk: "/dev/sda"
     machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/f171f129b1614a893bd440762f70c2ca4b98f439ca1823cf455d5874ef0da656
+      secureboot: false
+    talosImageURL: factory.talos.dev/nocloud-installer/d3d999716070c29aa4b9b409693b9ab4e4a97811264fc85e5a82090d2d1c8012
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -71,27 +56,12 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.50.247"
-    patches:
-      - # Encrypt system disk with TPM
-        |-
-        machine:
-          systemDiskEncryption:
-            state:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
-            ephemeral:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
   - hostname: "ho-prod-cp-03"
     ipAddress: "192.168.50.172"
     installDisk: "/dev/sda"
     machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/f171f129b1614a893bd440762f70c2ca4b98f439ca1823cf455d5874ef0da656
+      secureboot: false
+    talosImageURL: factory.talos.dev/nocloud-installer/d3d999716070c29aa4b9b409693b9ab4e4a97811264fc85e5a82090d2d1c8012
     controlPlane: true
     networkInterfaces:
       - deviceSelector:
@@ -105,27 +75,12 @@ nodes:
         mtu: 1500
         vip:
           ip: "192.168.50.247"
-    patches:
-      - # Encrypt system disk with TPM
-        |-
-        machine:
-          systemDiskEncryption:
-            state:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
-            ephemeral:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
   - hostname: "ho-prod-wk-01"
     ipAddress: "192.168.50.175"
     installDisk: "/dev/sda"
     machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/f777fd1b23434ed5d732d67aaf1a999cab79f717155d26bd02060af871ce8fcf
+      secureboot: false
+    talosImageURL: factory.talos.dev/nocloud-installer/f777fd1b23434ed5d732d67aaf1a999cab79f717155d26bd02060af871ce8fcf
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
@@ -138,28 +93,14 @@ nodes:
             network: 0.0.0.0/0
         mtu: 1500
     patches:
-      - # Encrypt system disk with TPM
-        |-
-        machine:
-          systemDiskEncryption:
-            state:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
-            ephemeral:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
       - "@./patches/storage-nodes/machine-kubelet.yaml"
       - "@./patches/storage-nodes/machine-nodelabels.yaml"
   - hostname: "ho-prod-wk-02"
     ipAddress: "192.168.50.176"
     installDisk: "/dev/sda"
     machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/f777fd1b23434ed5d732d67aaf1a999cab79f717155d26bd02060af871ce8fcf
+      secureboot: false
+    talosImageURL: factory.talos.dev/nocloud-installer/f777fd1b23434ed5d732d67aaf1a999cab79f717155d26bd02060af871ce8fcf
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
@@ -172,28 +113,14 @@ nodes:
             network: 0.0.0.0/0
         mtu: 1500
     patches:
-      - # Encrypt system disk with TPM
-        |-
-        machine:
-          systemDiskEncryption:
-            state:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
-            ephemeral:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
       - "@./patches/storage-nodes/machine-kubelet.yaml"
       - "@./patches/storage-nodes/machine-nodelabels.yaml"
   - hostname: "ho-prod-wk-03"
     ipAddress: "192.168.50.177"
     installDisk: "/dev/sda"
     machineSpec:
-      secureboot: true
-    talosImageURL: factory.talos.dev/installer-secureboot/f777fd1b23434ed5d732d67aaf1a999cab79f717155d26bd02060af871ce8fcf
+      secureboot: false
+    talosImageURL: factory.talos.dev/nocloud-installer/f777fd1b23434ed5d732d67aaf1a999cab79f717155d26bd02060af871ce8fcf
     controlPlane: false
     networkInterfaces:
       - deviceSelector:
@@ -206,20 +133,6 @@ nodes:
             network: 0.0.0.0/0
         mtu: 1500
     patches:
-      - # Encrypt system disk with TPM
-        |-
-        machine:
-          systemDiskEncryption:
-            state:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
-            ephemeral:
-              provider: luks2
-              keys:
-                - slot: 0
-                  tpm: {}
       - "@./patches/storage-nodes/machine-kubelet.yaml"
       - "@./patches/storage-nodes/machine-nodelabels.yaml"
 
