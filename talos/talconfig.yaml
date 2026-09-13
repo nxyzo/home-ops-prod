@@ -151,3 +151,4 @@ controlPlane:
   patches:
     - "@./patches/controller/cluster.yaml"
     - "@./patches/controller/audit-policy.yaml"
+    - "@./patches/controller/etcd-backup.yaml"
