@@ -213,7 +213,7 @@ spec:
           hostnames:
             - authentik.${SECRET_DOMAIN}
           parentRefs:
-            - name: envoy-external
+            - name: envoy-internal
               namespace: network
           matches:
             - path:
