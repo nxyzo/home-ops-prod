@@ -30,7 +30,7 @@ spec:
           trek:
             image:
               repository: docker.io/mauriceboe/trek
-              tag: 3.4.1@sha256:ce7fab639b89a6f62d484d1175a7d489a536a8c77291f56c03fec20608d4a3eb
+              tag: 5.2.1@sha256:7935eeb96db3202b5af896951fd96379d6eb4d3608ce93a1f2e8f850e10a2257
             args:
               - sh
               - -c
